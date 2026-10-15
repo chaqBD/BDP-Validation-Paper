@@ -13,7 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import numpy as np
 import pandas as pd
 
-from src.bootstrap import paired_cluster_bootstrap_difference, equivalence_test, holm_adjust
+from src.bootstrap import (paired_cluster_bootstrap_difference, equivalence_test, holm_adjust,
+                            bootstrap_pvalue_two_sided)
 from src.config import O2_DIR, DELTA_AUC
 from src.metrics import safe_auc
 from src.stats_tests import kendall_tau_with_bootstrap
@@ -34,13 +35,14 @@ def h1_dataco(preds, n_boot=1000, seed=0):
     for family in MODEL_FAMILIES:
         y_a, p_a, c_a = preds[("row_random", family)]
         y_b, p_b, c_b = preds[("order_grouped", family)]
-        diff, lo, hi, _ = paired_cluster_bootstrap_difference(
+        diff, lo, hi, diffs = paired_cluster_bootstrap_difference(
             y_a, p_a, c_a, safe_auc, y_b, p_b, c_b, n_boot=n_boot, seed=seed)
         verdict = equivalence_test(diff, lo, hi, DELTA_AUC)
+        pval = bootstrap_pvalue_two_sided(diffs)
         rows.append({"hypothesis": "H1", "dataset": "dataco", "model": family,
                       "contrast": "row_random_minus_order_grouped_auc",
                       "diff": diff, "ci_low": lo, "ci_high": hi, "delta": DELTA_AUC,
-                      "verdict": verdict})
+                      "verdict": verdict, "pvalue_diff_ne_zero": pval})
     return rows
 
 
@@ -50,13 +52,14 @@ def h2_olist(preds, n_boot=1000, seed=0):
     for family in MODEL_FAMILIES:
         y_a, p_a, c_a = preds[("chronological_primary", family)]
         y_b, p_b, c_b = preds[("order_grouped", family)]
-        diff, lo, hi, _ = paired_cluster_bootstrap_difference(
+        diff, lo, hi, diffs = paired_cluster_bootstrap_difference(
             y_a, p_a, c_a, safe_auc, y_b, p_b, c_b, n_boot=n_boot, seed=seed)
         verdict = equivalence_test(diff, lo, hi, DELTA_AUC)
+        pval = bootstrap_pvalue_two_sided(diffs)
         rows.append({"hypothesis": "H2", "dataset": "olist", "model": family,
                       "contrast": "chronological_minus_order_grouped_auc",
                       "diff": diff, "ci_low": lo, "ci_high": hi, "delta": DELTA_AUC,
-                      "verdict": verdict})
+                      "verdict": verdict, "pvalue_diff_ne_zero": pval})
     return rows
 
 
@@ -87,10 +90,15 @@ if __name__ == "__main__":
     all_rows += h1_dataco(dataco_preds)
     all_rows += h2_olist(olist_preds)
 
-    pvals_proxy = [0.5 if r["verdict"] == "inconclusive" else 0.001 for r in all_rows]
-    adj = holm_adjust(pvals_proxy)
+    # Holm's step-down correction applied to genuine bootstrap p-values for the two-sided
+    # null H0: diff = 0 (NOT the same null as the registered equivalence test, which is a
+    # CI-vs-margin decision rule and does not itself require a p-value; this column is a
+    # supplementary multiplicity-controlled significance statement, reported alongside,
+    # not in place of, the primary equivalence verdict).
+    pvals = [r["pvalue_diff_ne_zero"] for r in all_rows]
+    adj = holm_adjust(pvals)
     for r, a in zip(all_rows, adj):
-        r["holm_adjusted_p_proxy"] = a
+        r["holm_adjusted_p_diff_ne_zero"] = a
 
     h_df = pd.DataFrame(all_rows)
     h_df.to_csv(O2_DIR / "hypothesis_tests_h1_h2.csv", index=False)

@@ -1,7 +1,7 @@
-hypothesis,dataset,model,contrast,diff,ci_low,ci_high,delta,verdict,holm_adjusted_p_proxy
-H1,dataco,logreg,row_random_minus_order_grouped_auc,0.02086296716136249,0.009041401832147957,0.032309527465446373,0.01,inconclusive,1.0
-H1,dataco,rf,row_random_minus_order_grouped_auc,0.014842397314354439,0.0030438491982197093,0.026698529128147238,0.01,inconclusive,1.0
-H1,dataco,gbm,row_random_minus_order_grouped_auc,0.0321020961829116,0.020309765293538878,0.04341696210403584,0.01,superior,0.006
-H2,olist,logreg,chronological_minus_order_grouped_auc,0.028721644975839622,0.010358362345445592,0.04799680658858125,0.01,superior,0.006
-H2,olist,rf,chronological_minus_order_grouped_auc,-0.27693527149393626,-0.2997726888848678,-0.25354349511015045,0.01,inferior,0.006
-H2,olist,gbm,chronological_minus_order_grouped_auc,-0.06513447550024176,-0.08343509242988376,-0.045373083246977544,0.01,inferior,0.006
+hypothesis,dataset,model,contrast,diff,ci_low,ci_high,delta,verdict,pvalue_diff_ne_zero,holm_adjusted_p_diff_ne_zero
+H1,dataco,logreg,row_random_minus_order_grouped_auc,0.02086296716136249,0.009041401832147957,0.032309527465446373,0.01,inconclusive,0.002,0.006
+H1,dataco,rf,row_random_minus_order_grouped_auc,0.014842397314354439,0.0030438491982197093,0.026698529128147238,0.01,inconclusive,0.008,0.012
+H1,dataco,gbm,row_random_minus_order_grouped_auc,0.0321020961829116,0.020309765293538878,0.04341696210403584,0.01,superior,0.0,0.0
+H2,olist,logreg,chronological_minus_order_grouped_auc,0.025777198039611093,0.005893108979253263,0.046836697053970644,0.01,inconclusive,0.006,0.012
+H2,olist,rf,chronological_minus_order_grouped_auc,-0.3017462675802937,-0.3248329935087191,-0.27722726294908084,0.01,inferior,0.0,0.0
+H2,olist,gbm,chronological_minus_order_grouped_auc,-0.05920772279309772,-0.07716975771636181,-0.04028577223085849,0.01,inferior,0.0,0.0

@@ -1,0 +1,9 @@
+dataset,case,model,sample,n_train,n_test,split_overlap_detected_fraction,split_overlap_flag,gate_status
+dataco,defect_exact_duplicate,gbm,capped_4000,4000,4000,0.0045,OK,NEEDS_REVIEW
+dataco,defect_exact_duplicate,gbm,full,138094,32880,0.2000,SPLIT_OVERLAP_RISK,BLOCKED
+olist,defect_exact_duplicate,gbm,capped_4000,4000,4000,,,NEEDS_REVIEW
+olist,defect_exact_duplicate,gbm,full,80751,19236,0.2000,SPLIT_OVERLAP_RISK,BLOCKED
+dataco,defect_group_overlap,gbm,capped_4000,4000,4000,,,BLOCKED
+dataco,defect_group_overlap,gbm,full,153408,32880,0.6660,SPLIT_OVERLAP_RISK,BLOCKED
+olist,defect_group_overlap,gbm,capped_4000,4000,4000,,,NEEDS_REVIEW
+olist,defect_group_overlap,gbm,full,77130,19236,0.0117,SPLIT_OVERLAP_RISK,BLOCKED

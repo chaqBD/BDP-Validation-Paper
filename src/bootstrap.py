@@ -77,6 +77,21 @@ def equivalence_test(diff, ci_low, ci_high, delta):
     return "inconclusive"
 
 
+def bootstrap_pvalue_two_sided(diffs):
+    """Genuine two-sided bootstrap p-value for H0: difference = 0, computed from the
+    empirical bootstrap distribution of the difference itself (not derived from the
+    equivalence verdict, which is a separate, CI-vs-margin decision rule). Standard
+    percentile-based bootstrap test: p = 2 * min(P(diff<=0), P(diff>=0)), capped at 1.
+    """
+    diffs = np.asarray(diffs, dtype=float)
+    diffs = diffs[~np.isnan(diffs)]
+    if len(diffs) == 0:
+        return np.nan
+    p_le = np.mean(diffs <= 0)
+    p_ge = np.mean(diffs >= 0)
+    return float(min(2 * min(p_le, p_ge), 1.0))
+
+
 def holm_adjust(pvalues, alpha=0.05):
     """Holm's step-down adjustment. Returns adjusted p-values in the original order."""
     pvalues = np.asarray(pvalues, dtype=float)
