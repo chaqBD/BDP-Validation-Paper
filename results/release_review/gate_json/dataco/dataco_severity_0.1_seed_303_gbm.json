@@ -1,0 +1,395 @@
+{
+  "gate_status": "NEEDS_REVIEW",
+  "task": "binary",
+  "model_metric": "roc_auc",
+  "model_score": 0.7619,
+  "model_auc": 0.7619,
+  "n_flags": 4,
+  "total_duration_ms": 1563.69,
+  "results_by_category": {
+    "validation": [
+      {
+        "check_name": "target_leakage",
+        "flag": "OK",
+        "detail": "no single feature approaches the model's own predictive power (0.524)",
+        "blocking": true,
+        "metadata": {
+          "model_power": 0.5238,
+          "threshold_ratio": 0.95,
+          "min_power": 0.8,
+          "n_features_scored": 23
+        },
+        "duration_ms": 13.09
+      },
+      {
+        "check_name": "split_overlap",
+        "flag": "OK",
+        "detail": "0 duplicate row(s) within the validation set (0.0%, max 5%) \u2014 duplicates weight the same observation more than once in every metric",
+        "blocking": true,
+        "metadata": {
+          "check": "duplicates_within_validation",
+          "n_duplicates": 0,
+          "duplicate_fraction": 0.0,
+          "threshold": 0.05
+        },
+        "duration_ms": 13.12
+      },
+      {
+        "check_name": "split_overlap",
+        "flag": "OK",
+        "detail": "16 of 4000 validation rows (0.4%, max 1%) also appear in X_train, compared over 23 shared column(s)",
+        "blocking": true,
+        "metadata": {
+          "check": "overlap_with_training",
+          "n_overlapping": 16,
+          "overlap_fraction": 0.004,
+          "threshold": 0.01,
+          "n_columns_compared": 23
+        },
+        "duration_ms": 13.12
+      },
+      {
+        "check_name": "validation_strategy",
+        "flag": "OK",
+        "detail": "validated with a 'out_of_time' split (out-of-time)",
+        "blocking": true,
+        "metadata": {
+          "check": "out_of_time_for_high_risk",
+          "declared": "out_of_time",
+          "is_out_of_time": true,
+          "is_high_risk": false
+        },
+        "duration_ms": 0.01
+      },
+      {
+        "check_name": "feature_contract",
+        "flag": "OK",
+        "detail": "X matches the 23 feature(s) recorded in model.feature_names_in_, in order",
+        "blocking": true,
+        "metadata": {
+          "check": "feature_order",
+          "source": "model.feature_names_in_",
+          "n_features": 23,
+          "expected_order": null,
+          "actual_order": null
+        },
+        "duration_ms": 0.02
+      },
+      {
+        "check_name": "feature_drift",
+        "flag": "DRIFT_RISK",
+        "detail": "Order State: total variation distance 0.568 between training and validation (max 0.15) \u2014 the model is being graded on a different population from the one it was fitted to",
+        "blocking": false,
+        "metadata": {
+          "feature": "Order State",
+          "shift": 0.5675,
+          "threshold": 0.15,
+          "measure": "total variation distance",
+          "n_features_scored": 23
+        },
+        "duration_ms": 17.6
+      },
+      {
+        "check_name": "feature_drift",
+        "flag": "DRIFT_RISK",
+        "detail": "Order Country: total variation distance 0.550 between training and validation (max 0.15) \u2014 the model is being graded on a different population from the one it was fitted to",
+        "blocking": false,
+        "metadata": {
+          "feature": "Order Country",
+          "shift": 0.55,
+          "threshold": 0.15,
+          "measure": "total variation distance",
+          "n_features_scored": 23
+        },
+        "duration_ms": 17.6
+      },
+      {
+        "check_name": "feature_drift",
+        "flag": "DRIFT_RISK",
+        "detail": "Order Region: total variation distance 0.545 between training and validation (max 0.15) \u2014 the model is being graded on a different population from the one it was fitted to",
+        "blocking": false,
+        "metadata": {
+          "feature": "Order Region",
+          "shift": 0.5455,
+          "threshold": 0.15,
+          "measure": "total variation distance",
+          "n_features_scored": 23
+        },
+        "duration_ms": 17.6
+      },
+      {
+        "check_name": "feature_drift",
+        "flag": "DRIFT_RISK",
+        "detail": "Market: total variation distance 0.516 between training and validation (max 0.15) \u2014 the model is being graded on a different population from the one it was fitted to",
+        "blocking": false,
+        "metadata": {
+          "feature": "Market",
+          "shift": 0.5165,
+          "threshold": 0.15,
+          "measure": "total variation distance",
+          "n_features_scored": 23
+        },
+        "duration_ms": 17.6
+      }
+    ],
+    "fairness": [
+      {
+        "check_name": "proxy_correlation",
+        "flag": "NOT_APPLICABLE",
+        "detail": "no protected_df supplied",
+        "blocking": false,
+        "metadata": {},
+        "duration_ms": 0.0
+      },
+      {
+        "check_name": "disparate_impact",
+        "flag": "NOT_APPLICABLE",
+        "detail": "no protected_df supplied",
+        "blocking": false,
+        "metadata": {},
+        "duration_ms": 0.0
+      },
+      {
+        "check_name": "shap_subgroup_gap",
+        "flag": "NOT_APPLICABLE",
+        "detail": "no protected_df supplied",
+        "blocking": false,
+        "metadata": {},
+        "duration_ms": 0.0
+      },
+      {
+        "check_name": "counterfactual_flip",
+        "flag": "NOT_APPLICABLE",
+        "detail": "no protected_df supplied",
+        "blocking": false,
+        "metadata": {},
+        "duration_ms": 0.0
+      },
+      {
+        "check_name": "equalised_odds",
+        "flag": "NOT_APPLICABLE",
+        "detail": "no protected_df supplied",
+        "blocking": false,
+        "metadata": {},
+        "duration_ms": 0.0
+      },
+      {
+        "check_name": "subgroup_calibration",
+        "flag": "NOT_APPLICABLE",
+        "detail": "no protected_df supplied",
+        "blocking": false,
+        "metadata": {},
+        "duration_ms": 0.0
+      },
+      {
+        "check_name": "group_mean_gap",
+        "flag": "NOT_APPLICABLE",
+        "detail": "check does not apply to a binary task (supports: regression)",
+        "blocking": false,
+        "metadata": {},
+        "duration_ms": 0.0
+      },
+      {
+        "check_name": "error_parity",
+        "flag": "NOT_APPLICABLE",
+        "detail": "check does not apply to a binary task (supports: regression)",
+        "blocking": false,
+        "metadata": {},
+        "duration_ms": 0.0
+      },
+      {
+        "check_name": "calibration_parity",
+        "flag": "NOT_APPLICABLE",
+        "detail": "check does not apply to a binary task (supports: regression)",
+        "blocking": false,
+        "metadata": {},
+        "duration_ms": 0.0
+      },
+      {
+        "check_name": "loss_ratio_parity",
+        "flag": "NOT_APPLICABLE",
+        "detail": "check does not apply to a binary task (supports: regression)",
+        "blocking": false,
+        "metadata": {},
+        "duration_ms": 0.0
+      }
+    ],
+    "performance": [
+      {
+        "check_name": "performance_thresholds",
+        "flag": "OK",
+        "detail": "roc_auc=0.7619 [0.747, 0.776] (min 0.6) \u2014 the whole interval sits above 0.600",
+        "blocking": true,
+        "metadata": {
+          "metric_kind": "score",
+          "metric": "roc_auc",
+          "value": 0.7619,
+          "threshold": 0.6,
+          "threshold_field": "min_score",
+          "greater_is_better": true,
+          "metric_is_fallback": false,
+          "exposure_weighted": false,
+          "on_uncertain": "review",
+          "point": 0.7619,
+          "ci_low": 0.7473,
+          "ci_high": 0.7759,
+          "ci_level": 0.95,
+          "bootstrap_samples": 1000
+        },
+        "duration_ms": 1184.68
+      },
+      {
+        "check_name": "calibration",
+        "flag": "OK",
+        "detail": "expected calibration error=0.006 [0.006, 0.023] at 95% (max 0.1); reliability=0.0002, resolution=0.0588 \u2014 the whole interval sits below 0.100",
+        "blocking": true,
+        "metadata": {
+          "ece": 0.00645,
+          "threshold": 0.1,
+          "n_bins": 10,
+          "strategy": "uniform",
+          "brier": 0.18567,
+          "binned_brier": 0.18645,
+          "reliability": 0.00019,
+          "resolution": 0.0588,
+          "uncertainty": 0.24506,
+          "base_rate": 0.57025,
+          "on_uncertain": "review",
+          "point": 0.0064,
+          "ci_low": 0.006,
+          "ci_high": 0.0234,
+          "ci_level": 0.95,
+          "bootstrap_samples": 1000
+        },
+        "duration_ms": 133.36
+      },
+      {
+        "check_name": "actual_vs_expected",
+        "flag": "NOT_APPLICABLE",
+        "detail": "check does not apply to a binary task (supports: regression)",
+        "blocking": true,
+        "metadata": {},
+        "duration_ms": 0.0
+      },
+      {
+        "check_name": "risk_discrimination",
+        "flag": "NOT_APPLICABLE",
+        "detail": "check does not apply to a binary task (supports: regression)",
+        "blocking": true,
+        "metadata": {},
+        "duration_ms": 0.0
+      }
+    ],
+    "compliance": [
+      {
+        "check_name": "compliance_mapping",
+        "flag": "OK",
+        "detail": "model_card.legal_basis present",
+        "blocking": true,
+        "metadata": {
+          "check": "model_card.legal_basis"
+        },
+        "duration_ms": 0.01
+      },
+      {
+        "check_name": "compliance_mapping",
+        "flag": "OK",
+        "detail": "model_card.data_minimization_justification present",
+        "blocking": true,
+        "metadata": {
+          "check": "model_card.data_minimization_justification"
+        },
+        "duration_ms": 0.01
+      },
+      {
+        "check_name": "compliance_mapping",
+        "flag": "OK",
+        "detail": "model_card.training_data_source present",
+        "blocking": true,
+        "metadata": {
+          "check": "model_card.training_data_source"
+        },
+        "duration_ms": 0.01
+      },
+      {
+        "check_name": "compliance_mapping",
+        "flag": "OK",
+        "detail": "not high-risk \u2014 DPIA not required",
+        "blocking": true,
+        "metadata": {
+          "check": "dpia_trigger",
+          "is_high_risk": false
+        },
+        "duration_ms": 0.01
+      },
+      {
+        "check_name": "compliance_mapping",
+        "flag": "OK",
+        "detail": "not required for this use case",
+        "blocking": true,
+        "metadata": {
+          "check": "explainability_requirement",
+          "influences_person": false
+        },
+        "duration_ms": 0.01
+      },
+      {
+        "check_name": "monotonicity",
+        "flag": "NOT_APPLICABLE",
+        "detail": "no actuarial.monotonic_features declared \u2014 a monotonicity requirement is a claim about your product ({\"prior_claims\": \"increasing\"}), and no library can guess which factors carry one or in which direction",
+        "blocking": true,
+        "metadata": {},
+        "duration_ms": 0.0
+      },
+      {
+        "check_name": "prediction_dislocation",
+        "flag": "NOT_APPLICABLE",
+        "detail": "check does not apply to a binary task (supports: regression)",
+        "blocking": false,
+        "metadata": {},
+        "duration_ms": 0.0
+      }
+    ],
+    "security": [
+      {
+        "check_name": "adversarial_robustness",
+        "flag": "OK",
+        "detail": "flip rate under random perturbation=0.0150 (max 0.25)",
+        "blocking": true,
+        "metadata": {
+          "flip_rate": 0.015,
+          "threshold": 0.25,
+          "method": "random",
+          "task": "binary"
+        },
+        "duration_ms": 123.55
+      },
+      {
+        "check_name": "pii_leakage",
+        "flag": "OK",
+        "detail": "no PII patterns detected",
+        "blocking": true,
+        "metadata": {},
+        "duration_ms": 12.13
+      },
+      {
+        "check_name": "prompt_injection",
+        "flag": "NOT_APPLICABLE",
+        "detail": "no generative component supplied \u2014 set context.generate_fn for the direct surface (the payload arrives as the user turn) or context.inject_fn for the indirect one (the payload arrives where your pipeline puts retrieved content). The second is the surface that matters for a regulated deployment",
+        "blocking": true,
+        "metadata": {},
+        "duration_ms": 0.01
+      },
+      {
+        "check_name": "report_injection",
+        "flag": "OK",
+        "detail": "no instruction-shaped text in the 33 string(s) this run would copy into its report",
+        "blocking": false,
+        "metadata": {
+          "n_strings_scanned": 33
+        },
+        "duration_ms": 0.15
+      }
+    ]
+  }
+}

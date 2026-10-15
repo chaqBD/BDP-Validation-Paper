@@ -5,7 +5,7 @@
   "model_score": 0.7644,
   "model_auc": 0.7644,
   "n_flags": 5,
-  "total_duration_ms": 2092.44,
+  "total_duration_ms": 1422.98,
   "results_by_category": {
     "validation": [
       {
@@ -19,7 +19,7 @@
           "min_power": 0.8,
           "n_features_scored": 23
         },
-        "duration_ms": 18.13
+        "duration_ms": 12.06
       },
       {
         "check_name": "split_overlap",
@@ -32,7 +32,7 @@
           "duplicate_fraction": 0.0,
           "threshold": 0.05
         },
-        "duration_ms": 17.22
+        "duration_ms": 10.44
       },
       {
         "check_name": "split_overlap",
@@ -46,7 +46,7 @@
           "threshold": 0.01,
           "n_columns_compared": 23
         },
-        "duration_ms": 17.22
+        "duration_ms": 10.44
       },
       {
         "check_name": "validation_strategy",
@@ -59,7 +59,7 @@
           "is_out_of_time": true,
           "is_high_risk": false
         },
-        "duration_ms": 0.02
+        "duration_ms": 0.01
       },
       {
         "check_name": "feature_contract",
@@ -73,7 +73,7 @@
           "expected_order": null,
           "actual_order": null
         },
-        "duration_ms": 0.04
+        "duration_ms": 0.02
       },
       {
         "check_name": "feature_drift",
@@ -87,7 +87,7 @@
           "measure": "total variation distance",
           "n_features_scored": 23
         },
-        "duration_ms": 23.56
+        "duration_ms": 14.56
       },
       {
         "check_name": "feature_drift",
@@ -101,7 +101,7 @@
           "measure": "total variation distance",
           "n_features_scored": 23
         },
-        "duration_ms": 23.56
+        "duration_ms": 14.57
       },
       {
         "check_name": "feature_drift",
@@ -115,7 +115,7 @@
           "measure": "total variation distance",
           "n_features_scored": 23
         },
-        "duration_ms": 23.56
+        "duration_ms": 14.57
       },
       {
         "check_name": "feature_drift",
@@ -129,7 +129,7 @@
           "measure": "total variation distance",
           "n_features_scored": 23
         },
-        "duration_ms": 23.56
+        "duration_ms": 14.57
       },
       {
         "check_name": "feature_drift",
@@ -143,7 +143,7 @@
           "measure": "standardised mean shift",
           "n_features_scored": 23
         },
-        "duration_ms": 23.56
+        "duration_ms": 14.57
       }
     ],
     "fairness": [
@@ -250,7 +250,7 @@
           "ci_level": 0.95,
           "bootstrap_samples": 1000
         },
-        "duration_ms": 1634.63
+        "duration_ms": 1119.2
       },
       {
         "check_name": "calibration",
@@ -275,7 +275,7 @@
           "ci_level": 0.95,
           "bootstrap_samples": 1000
         },
-        "duration_ms": 189.71
+        "duration_ms": 127.94
       },
       {
         "check_name": "actual_vs_expected",
@@ -323,7 +323,7 @@
         "metadata": {
           "check": "model_card.training_data_source"
         },
-        "duration_ms": 0.02
+        "duration_ms": 0.01
       },
       {
         "check_name": "compliance_mapping",
@@ -334,7 +334,7 @@
           "check": "dpia_trigger",
           "is_high_risk": false
         },
-        "duration_ms": 0.02
+        "duration_ms": 0.01
       },
       {
         "check_name": "compliance_mapping",
@@ -345,7 +345,7 @@
           "check": "explainability_requirement",
           "influences_person": false
         },
-        "duration_ms": 0.02
+        "duration_ms": 0.01
       },
       {
         "check_name": "monotonicity",
@@ -376,7 +376,7 @@
           "method": "random",
           "task": "binary"
         },
-        "duration_ms": 86.94
+        "duration_ms": 62.45
       },
       {
         "check_name": "pii_leakage",
@@ -384,7 +384,7 @@
         "detail": "no PII patterns detected",
         "blocking": true,
         "metadata": {},
-        "duration_ms": 10.51
+        "duration_ms": 7.44
       },
       {
         "check_name": "prompt_injection",
@@ -402,7 +402,7 @@
         "metadata": {
           "n_strings_scanned": 33
         },
-        "duration_ms": 0.14
+        "duration_ms": 0.09
       }
     ]
   }

@@ -32,7 +32,7 @@ olist,leaky_feature,Temporal integrity,2,0.0,0.0,1.0
 olist,exact_duplicate,AUROC-only,2,0.0,0.0,1.0
 olist,exact_duplicate,Metrics-only,2,0.0,0.0,1.0
 olist,exact_duplicate,Automated checklist,2,1.0,0.0,0.0
-olist,exact_duplicate,Stock gate,2,0.0,1.0,0.0
+olist,exact_duplicate,Stock gate,2,1.0,0.0,0.0
 olist,exact_duplicate,Extended gate,2,1.0,0.0,0.0
 olist,exact_duplicate,Temporal integrity,2,1.0,0.0,0.0
 olist,invalid_schema,AUROC-only,2,0.0,0.0,1.0

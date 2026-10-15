@@ -152,6 +152,11 @@ def build_population(orders, customers, items, payments, products,
         "promised_days": pop["promised_days"].values,
         "customer_state": pop["customer_state"].values,
         "actual_fulfillment_days": actual_fulfillment_days.values,
+        # The exact timestamp the outcome became observable, not a day-rounded
+        # reconstruction from decision_time + actual_fulfillment_days: Olist records
+        # order_delivered_customer_date to the second, so label availability (Section
+        # 4.2) should use it directly rather than lose precision to day-rounding.
+        "label_known_time": pop["order_delivered_customer_date"].values,
     }).reset_index(drop=True)
 
     return X, y, meta, NUMERIC_FEATURES, CATEGORICAL_FEATURES

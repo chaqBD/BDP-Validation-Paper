@@ -16,11 +16,16 @@ RNG_SEED = 20261015
 
 
 def _label_known_time(meta):
-    """When each row's outcome actually became observable: decision_time plus the
-    time the outcome takes to resolve (shipment transit). A row's label is not
-    genuinely knowable before this point, independent of when the row itself was
-    recorded.
+    """When each row's outcome actually became observable. Uses the dataset's own
+    precomputed `label_known_time` column (Olist: the exact delivered-customer
+    timestamp; DataCo: decision_time plus a whole-day fulfilment count, the
+    coarsest precision the source data itself supports -- see
+    olist_prep.build_population / dataco_prep.build_population). A row's label is
+    not genuinely knowable before this point, independent of when the row itself
+    was recorded.
     """
+    if "label_known_time" in meta.columns:
+        return meta["label_known_time"].values
     decision_time = meta["decision_time"].values
     fulfillment_days = meta["actual_fulfillment_days"].values
     return decision_time + fulfillment_days.astype("timedelta64[D]")

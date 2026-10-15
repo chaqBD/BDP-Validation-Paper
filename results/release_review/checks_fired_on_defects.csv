@@ -75,10 +75,16 @@ olist,leaky_feature,gbm,feature_drift,DRIFT_RISK
 olist,leaky_feature,gbm,feature_drift,DRIFT_RISK
 olist,leaky_feature,gbm,feature_drift,DRIFT_RISK
 olist,leaky_feature,gbm,feature_drift,DRIFT_RISK
+olist,exact_duplicate,logreg,split_overlap,SPLIT_OVERLAP_RISK
 olist,exact_duplicate,logreg,feature_drift,DRIFT_RISK
 olist,exact_duplicate,logreg,feature_drift,DRIFT_RISK
+olist,exact_duplicate,logreg,feature_drift,DRIFT_RISK
+olist,exact_duplicate,rf,split_overlap,SPLIT_OVERLAP_RISK
 olist,exact_duplicate,rf,feature_drift,DRIFT_RISK
 olist,exact_duplicate,rf,feature_drift,DRIFT_RISK
+olist,exact_duplicate,rf,feature_drift,DRIFT_RISK
+olist,exact_duplicate,gbm,split_overlap,SPLIT_OVERLAP_RISK
+olist,exact_duplicate,gbm,feature_drift,DRIFT_RISK
 olist,exact_duplicate,gbm,feature_drift,DRIFT_RISK
 olist,exact_duplicate,gbm,feature_drift,DRIFT_RISK
 olist,invalid_schema,logreg,feature_contract,FEATURE_CONTRACT_RISK

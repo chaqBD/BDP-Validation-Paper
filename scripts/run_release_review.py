@@ -45,10 +45,13 @@ GROUP_POLICY = {
     "olist": {"identifier": "customer_id", "time_aware": True},
 }
 
-# Cases that are themselves defined by row-level duplication: the "no row is ever
-# both trained on and scored" integrity assertion legitimately does not apply to
-# these, since exact reuse is the ground truth being tested.
-EXPECTED_ROW_OVERLAP_CASES = {"defect_exact_duplicate"}
+# Defect types that are themselves defined by row-level duplication: the "no row
+# is ever both trained on and scored" integrity assertion legitimately does not
+# apply to these, since exact reuse is the ground truth being tested. Checked
+# against `defect_type`, not `case_name`, so severity/seed sweep instances of this
+# defect (e.g. "severity_0.2_seed_101", `run_heldout_evaluation.py`) are correctly
+# recognised too, not only the main battery's literal "defect_exact_duplicate".
+EXPECTED_ROW_OVERLAP_DEFECT_TYPES = {"exact_duplicate"}
 
 
 def build_case_list(dataset):
@@ -87,12 +90,12 @@ def run_one_case(dataset, case_name, defect_type, has_defect, case, ref, family,
     train_idx, test_idx = case["train_idx"], case["test_idx"]
 
     row_overlap = np.intersect1d(train_idx, test_idx)
-    if case_name in EXPECTED_ROW_OVERLAP_CASES:
+    if defect_type in EXPECTED_ROW_OVERLAP_DEFECT_TYPES:
         assert len(row_overlap) > 0, f"{case_name} is defined by row reuse but found none"
     else:
         assert len(row_overlap) == 0, (
             f"{dataset}/{case_name}: {len(row_overlap)} row(s) are both trained on and "
-            f"scored, which is only expected for {EXPECTED_ROW_OVERLAP_CASES}")
+            f"scored, which is only expected for defect types {EXPECTED_ROW_OVERLAP_DEFECT_TYPES}")
 
     X_train, y_train = X.iloc[train_idx], y.iloc[train_idx]
     X_test, y_test = X.iloc[test_idx], y.iloc[test_idx]

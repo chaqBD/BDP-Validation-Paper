@@ -1,0 +1,9 @@
+dataset,approach,flagged_rate,metrics_corroborated_flag_rate,methodology_specific_flag_rate
+dataco,Automated checklist,0.0,0.0,0.0
+dataco,Stock gate,1.0,0.0,1.0
+dataco,Extended gate,1.0,0.0,1.0
+dataco,Temporal integrity,0.0,0.0,0.0
+olist,Automated checklist,0.5,0.5,0.0
+olist,Stock gate,0.875,0.5,0.375
+olist,Extended gate,0.875,0.5,0.375
+olist,Temporal integrity,0.0,0.0,0.0

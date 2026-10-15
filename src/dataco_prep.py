@@ -112,6 +112,13 @@ def build_population(df, include_sensitivity_window=False, include_cancelled=Fal
         "shipping_mode": data["Shipping Mode"].values,
         "scheduled_days": data["Days for shipment (scheduled)"].values,
         "actual_fulfillment_days": data["Days for shipping (real)"].values,
+        # DataCo records delivery only as a whole-day count ("Days for shipping
+        # (real)"), not a timestamp, so this is a day-granularity approximation of
+        # when the outcome became observable -- the best precision the source data
+        # supports, unlike Olist, which carries an exact delivered timestamp
+        # (Section 4.2).
+        "label_known_time": (data["order_date"].values
+                              + data["Days for shipping (real)"].values.astype("timedelta64[D]")),
     }).reset_index(drop=True)
 
     return X, y, meta, numeric, CATEGORICAL_FEATURES

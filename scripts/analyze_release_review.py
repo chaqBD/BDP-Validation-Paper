@@ -11,13 +11,18 @@ single pass/fail judgement:
   (b) check-specific detection -- whether the one named check relevant to that
       defect type fired (Section 2, the PRIMARY detection endpoint, computed
       identically for every model including Olist random forest); and
-  (c) independent release suitability -- whether the model's own metrics,
+  (c) same-period metrics corroboration -- whether the model's own metrics,
       judged purely on frozen AUC/Brier/calibration thresholds with no schema,
-      overlap or group information (`verdict_metrics_only`), would itself call
-      the case unreleasable. Section 4 uses (c) to split every non-defect
-      case's flags into "defensible" (independent criteria agree) versus
-      "methodology-specific" (this approach flagged something the independent
-      criteria do not corroborate).
+      overlap or group information (`verdict_metrics_only`), ALSO flag the
+      same case. This is corroboration by a prespecified rule evaluated on the
+      same period, not independent confirmation that a release recommendation
+      was correct -- both numbers come from the same data. Section 4 uses (c)
+      to split every non-defect case's flags into "metrics-corroborated" versus
+      "methodology-specific" (flagged by this approach but not corroborated).
+      `scripts/run_subsequent_period_check.py` provides the genuinely external
+      check (c) cannot: whether a flag on one rolling-origin period predicts a
+      subsequent, independently fitted period failing a common acceptance
+      criterion.
 """
 import json
 import sys
@@ -44,20 +49,17 @@ APPROACH_LABELS = {
     "verdict_temporal_integrity": "Temporal integrity",
 }
 
-# The specific, named check whose activation is the ground-truth-relevant
-# evidence for each defect type -- used as the PRIMARY detection endpoint
-# (Section 2) rather than the aggregate gate verdict, because it is computed
-# the same way for every model family including Olist random forest: it asks
-# whether the one check a reviewer would actually look to for that defect
-# fired, not whether the whole gate happened to end up BLOCKED, which for RF is
-# confounded by a pre-existing baseline AUC problem the companion study
-# documents (`KNOWN_BASELINE_ISSUE`) and unrelated to any defect under test
-# here.
-DEFECT_CHECK_MAP = {
-    "leaky_feature": [("stock_gate_json", "target_leakage")],
-    "exact_duplicate": [("stock_gate_json", "split_overlap")],
-    "invalid_schema": [("stock_gate_json", "feature_contract")],
-    "group_overlap": [("column", "group_overlap_check_status"), ("column", "verdict_temporal_integrity")],
+# The single stock-gate check whose own documentation makes it the one most
+# relevant to each defect type -- there is no such stock-gate check for
+# group_overlap (that absence is the structural-blind-spot finding itself); kept
+# separate from the extension and the temporal check, never combined with them
+# into one boolean, so an approach's detection is always attributable to the one
+# mechanism that produced it.
+STOCK_CHECK_MAP = {
+    "leaky_feature": "target_leakage",
+    "exact_duplicate": "split_overlap",
+    "invalid_schema": "feature_contract",
+    "group_overlap": None,
 }
 
 
@@ -105,46 +107,47 @@ if __name__ == "__main__":
     verdict_breakdown.to_csv(OUT_DIR / "verdict_breakdown.csv", index=False)
     print(verdict_breakdown.to_string())
 
-    # 2. PRIMARY detection endpoint: did the one named check relevant to this
-    #    specific defect type fire, computed identically for every model family,
-    #    including Olist random forest (known_baseline_issue rows are flagged in
-    #    their own column rather than excluded, since this endpoint checks a
-    #    named check's own flag, not the aggregate gate verdict RF's pre-existing
-    #    baseline problem would otherwise confound).
+    # 2. PRIMARY detection endpoint: a COMPLETE approach x defect x instance table
+    #    -- every one of the three check-specific mechanisms (stock gate's own
+    #    named check, the group-identifier extension, the temporal-integrity
+    #    check) reported as its OWN column, for EVERY defect-model combination,
+    #    never combined into a single "relevant_check_fired" boolean. Computed
+    #    identically for every model family, including Olist random forest
+    #    (known_baseline_issue rows are flagged in their own column rather than
+    #    excluded, since this endpoint checks a named check's own flag, not the
+    #    aggregate gate verdict RF's pre-existing baseline problem would
+    #    otherwise confound).
     print("=" * 100)
-    print("2. PRIMARY: defect-specific check activation (all models, incl. known-baseline-issue rows)")
+    print("2. PRIMARY: complete approach x defect x instance detection table (all models)")
     print("=" * 100)
     rows2p = []
     for _, r in df[df["has_defect"]].iterrows():
-        checks = DEFECT_CHECK_MAP.get(r["defect_type"], [])
-        fired_any = False
-        fired_detail = []
-        for kind, name in checks:
-            if kind == "stock_gate_json":
-                gj = load_gate_json(r["dataset"], r["case"], r["model"])
-                if gj is None:
-                    continue
+        stock_check_name = STOCK_CHECK_MAP.get(r["defect_type"])
+        stock_fired = None
+        if stock_check_name is not None:
+            gj = load_gate_json(r["dataset"], r["case"], r["model"])
+            stock_fired = False
+            if gj is not None:
                 for cat, check_name, flag in per_check_flags(gj):
-                    if check_name == name and flag not in ("OK", "NOT_APPLICABLE"):
-                        fired_any = True
-                        fired_detail.append(f"{name}:{flag}")
-            elif kind == "column":
-                val = r.get(name)
-                if val in ("BLOCKED", "NEEDS_REVIEW"):
-                    fired_any = True
-                    fired_detail.append(f"{name}:{val}")
+                    if check_name == stock_check_name and flag not in ("OK", "NOT_APPLICABLE"):
+                        stock_fired = True
+        extension_fired = r.get("group_overlap_check_status") in ("BLOCKED", "NEEDS_REVIEW")
+        temporal_fired = r.get("verdict_temporal_integrity") in ("BLOCKED", "NEEDS_REVIEW")
         rows2p.append({
             "dataset": r["dataset"], "defect_type": r["defect_type"], "model": r["model"],
             "known_baseline_issue": r["known_baseline_issue"],
-            "relevant_check_fired": fired_any, "detail": ";".join(fired_detail),
+            "stock_check_name": stock_check_name,
+            "stock_named_check_fired": stock_fired,
+            "extension_fired": extension_fired,
+            "temporal_integrity_fired": temporal_fired,
         })
     primary_detection = pd.DataFrame(rows2p)
     primary_detection.to_csv(OUT_DIR / "primary_defect_check_detection.csv", index=False)
-    print(primary_detection.pivot_table(index=["dataset", "defect_type"], columns="model",
-                                         values="relevant_check_fired", aggfunc="mean").to_string())
-    print("\n(by known_baseline_issue status, defect-specific check only -- not the aggregate gate verdict)")
-    print(primary_detection.groupby(["dataset", "defect_type", "known_baseline_issue"])[
-        "relevant_check_fired"].mean().to_string())
+    print(primary_detection.to_string())
+    print("\nMean fired rate by dataset x defect_type (each mechanism reported on its own; "
+          "NaN = no stock-gate check targets this defect type):")
+    print(primary_detection.groupby(["dataset", "defect_type"])[
+        ["stock_named_check_fired", "extension_fired", "temporal_integrity_fired"]].mean().to_string())
 
     # 3. Detection (BLOCKED rate) and review-routing (NEEDS_REVIEW rate) on defect
     #    cases, separately, by defect type x approach -- the aggregate-verdict
@@ -178,23 +181,27 @@ if __name__ == "__main__":
 
     # 4. False alarms on clean/scenario cases (which are NOT defects), by case x
     #    approach -- split into three outcomes, not two: whether the row is
-    #    flagged at all (blocked_rate/needs_review_rate, as before), AND,
-    #    among flagged rows, whether an INDEPENDENT release-criteria check
-    #    (the metrics-only rule's own frozen AUC/Brier/calibration thresholds,
-    #    which take no schema, overlap or group information as input) also
-    #    judges the case unreleasable. A flag with no independent-criteria
-    #    support is a methodology-specific block: the approach reacted to
-    #    something -- drift, a row-overlap check, a group check -- that did not
-    #    itself show up as a performance problem by the independent criteria.
+    #    flagged at all (blocked_rate/needs_review_rate, as before), AND, among
+    #    flagged rows, whether the metrics-only rule (frozen AUC/Brier/
+    #    calibration thresholds, no schema/overlap/group information) ALSO
+    #    flags the same row. This is CORROBORATION by a prespecified metrics
+    #    rule evaluated on the same period, not independent confirmation that a
+    #    release recommendation was actually correct -- both numbers come from
+    #    the same data and the same thresholds this paper itself froze, so
+    #    agreement only shows internal consistency between two same-period
+    #    rules, not external validity. `scripts/run_subsequent_period_check.py`
+    #    provides the external check this section cannot: whether a flag on
+    #    origin i predicts a genuinely subsequent, independently fitted origin
+    #    i+1 failing a common acceptance criterion.
     print("\n" + "=" * 100)
-    print("4. False alarms: flag rate on clean/scenario cases, split by independent release criteria")
+    print("4. False alarms: flag rate on clean/scenario cases, split by same-period metrics corroboration")
     print("=" * 100)
     rows3 = []
     for dataset in df_clean_models.dataset.unique():
         d = df_clean_models[(df_clean_models.dataset == dataset) & (~df_clean_models.has_defect)]
         for case in d.case.unique():
             dd = d[d.case == case]
-            release_criteria_fails = dd["verdict_metrics_only"].isin(["BLOCKED", "NEEDS_REVIEW"])
+            metrics_rule_also_flags = dd["verdict_metrics_only"].isin(["BLOCKED", "NEEDS_REVIEW"])
             for appr in APPROACHES:
                 flagged = dd[appr].isin(["BLOCKED", "NEEDS_REVIEW"])
                 rows3.append({
@@ -203,15 +210,15 @@ if __name__ == "__main__":
                     "blocked_rate": rate(dd[appr], ["BLOCKED"]),
                     "needs_review_rate": rate(dd[appr], ["NEEDS_REVIEW"]),
                     "flagged_rate": flagged.mean() if len(dd) else np.nan,
-                    "defensible_flag_rate": (flagged & release_criteria_fails).mean() if len(dd) else np.nan,
-                    "methodology_specific_flag_rate": (flagged & ~release_criteria_fails).mean() if len(dd) else np.nan,
+                    "metrics_corroborated_flag_rate": (flagged & metrics_rule_also_flags).mean() if len(dd) else np.nan,
+                    "methodology_specific_flag_rate": (flagged & ~metrics_rule_also_flags).mean() if len(dd) else np.nan,
                 })
     false_alarms = pd.DataFrame(rows3)
     false_alarms.to_csv(OUT_DIR / "flagrate_by_nondefect_case.csv", index=False)
     print(false_alarms.pivot_table(index=["dataset", "case"], columns="approach",
                                     values="blocked_rate").to_string())
-    print("\n(methodology-specific flag rate = flagged by this approach but NOT by the independent "
-          "metrics-only release criteria)")
+    print("\n(methodology-specific flag rate = flagged by this approach but NOT by the same-period "
+          "metrics-only rule -- a same-period consistency check, not independent validation)")
     print(false_alarms.pivot_table(index=["dataset", "case"], columns="approach",
                                     values="methodology_specific_flag_rate").to_string())
 
@@ -302,11 +309,16 @@ if __name__ == "__main__":
     if len(fired):
         print(fired.groupby(["dataset", "defect_type", "check_name"]).size().to_string())
 
-    # 11. Held-out evaluation summary (run_heldout_evaluation.py): severity/seed
-    #     sweep on exact-duplicate, and false-positive rate across every
-    #     rolling-origin period not used by the two hand-picked scenario cases.
+    # 11. Supplementary evaluation summary (run_heldout_evaluation.py):
+    #     severity/seed sweep on exact-duplicate -- reporting the actual
+    #     duplication-specific overlap statistic, not only the aggregate verdict
+    #     -- and flag rate across eight rolling-origin periods per dataset not
+    #     used by either hand-picked scenario case (supplementary, not
+    #     genuinely unseen: these periods were already analysed in the
+    #     companion study's O4 rolling-origin analysis before this battery
+    #     existed), split by same-period metrics corroboration as in Section 4.
     print("\n" + "=" * 100)
-    print("11. Held-out evaluation: severity/seed sweep + genuinely held-out periods")
+    print("11. Supplementary evaluation: severity/seed sweep + eight supplementary periods per dataset")
     print("=" * 100)
     sev_path = OUT_DIR / "heldout_severity_sweep.csv"
     per_path = OUT_DIR / "heldout_period_sweep.csv"
@@ -318,10 +330,31 @@ if __name__ == "__main__":
         for appr in heldout_approaches:
             sev[f"{appr}_detected"] = sev[appr].isin(["BLOCKED", "NEEDS_REVIEW"])
             per[f"{appr}_flagged"] = per[appr].isin(["BLOCKED", "NEEDS_REVIEW"])
-        print("Detection rate by severity (exact-duplicate, gbm, 3 seeds each):")
+        sev["split_overlap_specific_fired"] = sev["split_overlap_flag"] != "OK"
+        print("Duplication-SPECIFIC detection (split_overlap check itself) vs. aggregate flag, by severity:")
         print(sev.groupby(["dataset", "severity_frac"])[
-            [f"{a}_detected" for a in heldout_approaches]].mean().to_string())
-        print("\nFalse-positive rate across genuinely held-out legitimate periods (gbm):")
-        print(per.groupby("dataset")[[f"{a}_flagged" for a in heldout_approaches]].mean().to_string())
+            ["split_overlap_specific_fired", "split_overlap_fraction"]
+            + [f"{a}_detected" for a in heldout_approaches]].mean().to_string())
+
+        print("\nSupplementary periods: flag rate, split by same-period metrics corroboration:")
+        per["metrics_rule_also_flags"] = per["verdict_metrics_only"].isin(["BLOCKED", "NEEDS_REVIEW"])
+        rows11 = []
+        for dataset in per.dataset.unique():
+            dd = per[per.dataset == dataset]
+            for appr in heldout_approaches:
+                flagged = dd[appr].isin(["BLOCKED", "NEEDS_REVIEW"])
+                rows11.append({
+                    "dataset": dataset, "approach": APPROACH_LABELS[appr],
+                    "flagged_rate": flagged.mean(),
+                    "metrics_corroborated_flag_rate": (flagged & dd["metrics_rule_also_flags"]).mean(),
+                    "methodology_specific_flag_rate": (flagged & ~dd["metrics_rule_also_flags"]).mean(),
+                })
+        supp_period_corrob = pd.DataFrame(rows11)
+        supp_period_corrob.to_csv(OUT_DIR / "supplementary_period_corroboration.csv", index=False)
+        print(supp_period_corrob.to_string(index=False))
+        print(f"\n(for reference: the metrics-only rule itself flags "
+              f"{per[per.dataset=='olist']['metrics_rule_also_flags'].mean():.0%} of Olist's 8 supplementary "
+              f"periods and {per[per.dataset=='dataco']['metrics_rule_also_flags'].mean():.0%} of DataCo's -- "
+              "a BLOCKED/NEEDS_REVIEW verdict on one of those periods is not automatically a false alarm)")
     else:
         print("(run scripts/run_heldout_evaluation.py first)")

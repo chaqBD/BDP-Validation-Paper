@@ -1,0 +1,3 @@
+dataset,identifier,time_aware_policy,extension_status_uncorrupted,extension_fraction_uncorrupted,extension_status_corrupted_timestamps,extension_fraction_corrupted_timestamps,temporal_status_uncorrupted,temporal_status_corrupted_timestamps
+dataco,order_id,False,BLOCKED,0.7956323930846224,BLOCKED,0.7956323930846224,BLOCKED,PASS
+olist,customer_id,True,NEEDS_REVIEW,0.011257233035244608,PASS,0.0,BLOCKED,PASS

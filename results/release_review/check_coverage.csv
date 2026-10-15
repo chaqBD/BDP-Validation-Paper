@@ -26,9 +26,9 @@ olist,clean_reference,gbm,33,15,3,0.45454545454545453
 olist,defect_leaky_feature,logreg,34,15,4,0.4411764705882353
 olist,defect_leaky_feature,rf,34,15,4,0.4411764705882353
 olist,defect_leaky_feature,gbm,34,15,4,0.4411764705882353
-olist,defect_exact_duplicate,logreg,32,15,2,0.46875
-olist,defect_exact_duplicate,rf,32,15,2,0.46875
-olist,defect_exact_duplicate,gbm,32,15,2,0.46875
+olist,defect_exact_duplicate,logreg,33,15,4,0.45454545454545453
+olist,defect_exact_duplicate,rf,33,15,4,0.45454545454545453
+olist,defect_exact_duplicate,gbm,33,15,4,0.45454545454545453
 olist,defect_invalid_schema,logreg,32,15,4,0.46875
 olist,defect_invalid_schema,rf,32,15,5,0.46875
 olist,defect_invalid_schema,gbm,32,15,4,0.46875
@@ -37,7 +37,7 @@ olist,defect_group_overlap,rf,32,15,3,0.46875
 olist,defect_group_overlap,gbm,32,15,2,0.46875
 olist,scenario_drift,logreg,33,15,4,0.45454545454545453
 olist,scenario_drift,rf,33,15,4,0.45454545454545453
-olist,scenario_drift,gbm,33,15,3,0.45454545454545453
+olist,scenario_drift,gbm,33,15,4,0.45454545454545453
 olist,scenario_prevalence,logreg,32,15,3,0.46875
 olist,scenario_prevalence,rf,32,15,3,0.46875
 olist,scenario_prevalence,gbm,32,15,4,0.46875

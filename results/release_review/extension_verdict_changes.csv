@@ -4,6 +4,3 @@ dataco,defect_exact_duplicate,rf,True,False,NEEDS_REVIEW,BLOCKED,0.4580527752502
 dataco,defect_exact_duplicate,gbm,True,False,NEEDS_REVIEW,BLOCKED,0.4580527752502275
 dataco,defect_group_overlap,logreg,True,False,NEEDS_REVIEW,BLOCKED,0.7956323930846224
 dataco,defect_group_overlap,gbm,True,False,NEEDS_REVIEW,BLOCKED,0.7956323930846224
-olist,defect_exact_duplicate,logreg,True,False,NEEDS_REVIEW,BLOCKED,0.2020515518148343
-olist,defect_exact_duplicate,rf,True,True,NEEDS_REVIEW,BLOCKED,0.2020515518148343
-olist,defect_exact_duplicate,gbm,True,False,NEEDS_REVIEW,BLOCKED,0.2020515518148343

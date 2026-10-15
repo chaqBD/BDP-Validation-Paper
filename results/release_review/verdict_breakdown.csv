@@ -8,8 +8,8 @@ dataco,scenario_drift,False,3,3,0,0,2,1,0,2,1,0,0,2,1,0,2,1,3,0,0
 dataco,scenario_prevalence,False,3,3,0,0,0,1,2,0,1,2,0,1,2,0,1,2,3,0,0
 olist,clean_reference,False,2,2,0,0,2,0,0,2,0,0,0,2,0,0,2,0,2,0,0
 olist,defect_leaky_feature,True,2,2,0,0,0,2,0,0,2,0,0,2,0,0,2,0,2,0,0
-olist,defect_exact_duplicate,True,2,2,0,0,2,0,0,0,0,2,0,2,0,0,0,2,0,0,2
+olist,defect_exact_duplicate,True,2,2,0,0,2,0,0,0,0,2,0,0,2,0,0,2,0,0,2
 olist,defect_invalid_schema,True,2,2,0,0,2,0,0,0,0,2,0,0,2,0,0,2,2,0,0
 olist,defect_group_overlap,True,2,2,0,0,2,0,0,2,0,0,0,2,0,0,2,0,0,0,2
-olist,scenario_drift,False,2,1,0,1,1,0,1,1,0,1,0,2,0,0,2,0,2,0,0
+olist,scenario_drift,False,2,0,0,2,0,0,2,0,0,2,0,2,0,0,2,0,2,0,0
 olist,scenario_prevalence,False,2,1,0,1,0,0,2,0,0,2,0,0,2,0,0,2,2,0,0

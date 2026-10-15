@@ -1,0 +1,7 @@
+approach,flagged_n,tp,fp,fn,tn,precision,recall
+verdict_auroc_only,5,4,1,1,12,0.8,0.8
+verdict_metrics_only,6,4,2,1,11,0.6666666666666666,0.8
+verdict_checklist,6,4,2,1,11,0.6666666666666666,0.8
+verdict_stock_gate,17,4,13,1,0,0.23529411764705882,0.8
+verdict_extended_gate,17,4,13,1,0,0.23529411764705882,0.8
+verdict_temporal_integrity,0,0,0,5,13,,0.0
