@@ -1,25 +1,31 @@
-dataset,case,approach,flag_rate,n_cases
-dataco,clean_reference,verdict_auroc_only,0.0,3
-dataco,clean_reference,verdict_checklist,0.3333333333333333,3
-dataco,clean_reference,verdict_stock_gate,1.0,3
-dataco,clean_reference,verdict_extended_gate,1.0,3
-dataco,scenario_drift,verdict_auroc_only,0.0,3
-dataco,scenario_drift,verdict_checklist,0.3333333333333333,3
-dataco,scenario_drift,verdict_stock_gate,1.0,3
-dataco,scenario_drift,verdict_extended_gate,1.0,3
-dataco,scenario_prevalence,verdict_auroc_only,0.0,3
-dataco,scenario_prevalence,verdict_checklist,0.3333333333333333,3
-dataco,scenario_prevalence,verdict_stock_gate,1.0,3
-dataco,scenario_prevalence,verdict_extended_gate,1.0,3
-olist,clean_reference,verdict_auroc_only,0.3333333333333333,3
-olist,clean_reference,verdict_checklist,0.3333333333333333,3
-olist,clean_reference,verdict_stock_gate,1.0,3
-olist,clean_reference,verdict_extended_gate,1.0,3
-olist,scenario_drift,verdict_auroc_only,0.3333333333333333,3
-olist,scenario_drift,verdict_checklist,0.6666666666666666,3
-olist,scenario_drift,verdict_stock_gate,1.0,3
-olist,scenario_drift,verdict_extended_gate,1.0,3
-olist,scenario_prevalence,verdict_auroc_only,0.0,3
-olist,scenario_prevalence,verdict_checklist,0.6666666666666666,3
-olist,scenario_prevalence,verdict_stock_gate,1.0,3
-olist,scenario_prevalence,verdict_extended_gate,1.0,3
+dataset,case,approach,n_cases,blocked_rate,needs_review_rate
+dataco,clean_reference,AUROC-only,3,0.0,0.0
+dataco,clean_reference,Metrics-only,3,0.0,0.3333333333333333
+dataco,clean_reference,Automated checklist,3,0.0,0.3333333333333333
+dataco,clean_reference,Stock gate,3,0.3333333333333333,0.6666666666666666
+dataco,clean_reference,Extended gate,3,0.3333333333333333,0.6666666666666666
+dataco,scenario_drift,AUROC-only,3,0.0,0.0
+dataco,scenario_drift,Metrics-only,3,0.0,0.3333333333333333
+dataco,scenario_drift,Automated checklist,3,0.0,0.3333333333333333
+dataco,scenario_drift,Stock gate,3,0.3333333333333333,0.6666666666666666
+dataco,scenario_drift,Extended gate,3,0.3333333333333333,0.6666666666666666
+dataco,scenario_prevalence,AUROC-only,3,0.0,0.0
+dataco,scenario_prevalence,Metrics-only,3,0.0,0.3333333333333333
+dataco,scenario_prevalence,Automated checklist,3,0.0,0.3333333333333333
+dataco,scenario_prevalence,Stock gate,3,0.0,1.0
+dataco,scenario_prevalence,Extended gate,3,0.0,1.0
+olist,clean_reference,AUROC-only,2,0.0,0.0
+olist,clean_reference,Metrics-only,2,0.0,0.0
+olist,clean_reference,Automated checklist,2,0.0,0.0
+olist,clean_reference,Stock gate,2,0.0,1.0
+olist,clean_reference,Extended gate,2,0.0,1.0
+olist,scenario_drift,AUROC-only,2,0.5,0.0
+olist,scenario_drift,Metrics-only,2,0.5,0.0
+olist,scenario_drift,Automated checklist,2,0.5,0.0
+olist,scenario_drift,Stock gate,2,0.0,1.0
+olist,scenario_drift,Extended gate,2,0.0,1.0
+olist,scenario_prevalence,AUROC-only,2,0.0,0.0
+olist,scenario_prevalence,Metrics-only,2,0.5,0.0
+olist,scenario_prevalence,Automated checklist,2,0.5,0.0
+olist,scenario_prevalence,Stock gate,2,1.0,0.0
+olist,scenario_prevalence,Extended gate,2,1.0,0.0

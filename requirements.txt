@@ -4,4 +4,9 @@ scikit-learn>=1.7
 scipy>=1.17
 lightgbm>=4.6
 matplotlib>=3.9
-bdp-model-gate[structured,plots]>=0.6.0
+bdp-model-gate[structured,plots]==0.6.0
+# Pinned exactly: this project uses the wheel supplied alongside the research
+# proposal (bdp_model_gate-0.6.0-py3-none-any.whl), not PyPI's current release,
+# which had moved to 0.7.0 by the time of analysis. `pip install --force-reinstall
+# --no-deps <path-to-wheel>` if a plain `pip install -r requirements.txt` resolves
+# a newer version from PyPI instead.

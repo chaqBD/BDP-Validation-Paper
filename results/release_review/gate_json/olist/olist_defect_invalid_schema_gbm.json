@@ -5,7 +5,7 @@
   "model_score": 0.6959,
   "model_auc": 0.6959,
   "n_flags": 4,
-  "total_duration_ms": 1326.3,
+  "total_duration_ms": 1330.11,
   "results_by_category": {
     "validation": [
       {
@@ -19,7 +19,7 @@
           "min_power": 0.8,
           "n_features_scored": 16
         },
-        "duration_ms": 11.42
+        "duration_ms": 9.6
       },
       {
         "check_name": "split_overlap",
@@ -32,7 +32,7 @@
           "duplicate_fraction": 0.0013,
           "threshold": 0.05
         },
-        "duration_ms": 6.33
+        "duration_ms": 5.44
       },
       {
         "check_name": "split_overlap",
@@ -46,7 +46,7 @@
           "threshold": 0.01,
           "n_columns_compared": 16
         },
-        "duration_ms": 6.33
+        "duration_ms": 5.44
       },
       {
         "check_name": "validation_strategy",
@@ -89,7 +89,7 @@
           "measure": "standardised mean shift",
           "n_features_scored": 16
         },
-        "duration_ms": 4.59
+        "duration_ms": 4.35
       },
       {
         "check_name": "feature_drift",
@@ -103,7 +103,7 @@
           "measure": "total variation distance",
           "n_features_scored": 16
         },
-        "duration_ms": 4.59
+        "duration_ms": 4.35
       }
     ],
     "fairness": [
@@ -210,7 +210,7 @@
           "ci_level": 0.95,
           "bootstrap_samples": 1000
         },
-        "duration_ms": 1163.99
+        "duration_ms": 1171.42
       },
       {
         "check_name": "calibration",
@@ -235,7 +235,7 @@
           "ci_level": 0.95,
           "bootstrap_samples": 1000
         },
-        "duration_ms": 124.43
+        "duration_ms": 124.45
       },
       {
         "check_name": "actual_vs_expected",
@@ -331,7 +331,7 @@
         "detail": "check raised an exception: ValueError(\"columns are missing: {'promised_days'}\")",
         "blocking": true,
         "metadata": {},
-        "duration_ms": 2.09
+        "duration_ms": 2.32
       },
       {
         "check_name": "pii_leakage",
@@ -339,7 +339,7 @@
         "detail": "no PII patterns detected",
         "blocking": true,
         "metadata": {},
-        "duration_ms": 2.36
+        "duration_ms": 2.56
       },
       {
         "check_name": "prompt_injection",
@@ -357,7 +357,7 @@
         "metadata": {
           "n_strings_scanned": 26
         },
-        "duration_ms": 0.09
+        "duration_ms": 0.1
       }
     ]
   }

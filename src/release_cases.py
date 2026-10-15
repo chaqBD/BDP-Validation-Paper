@@ -60,38 +60,50 @@ def case_exact_duplicate(ref, frac=0.2, seed=RNG_SEED):
 
 
 def case_group_overlap_dataco(ref, seed=RNG_SEED):
-    """Defect, DataCo: sibling line items of test orders are present in training
-    (the mechanism this paper's companion study isolated via dose-response).
-    Reuses order structure directly; all sibling rows beyond one kept test
-    representative per multi-line order are duplicated into training.
+    """Defect, DataCo: sibling line items of test orders are present in training,
+    while the *scored* test set is reduced to exactly one kept representative row
+    per order -- the sibling rows that move to training are removed from the
+    scored set, so no row index is ever both trained on and scored (distinct-row
+    group-dependence leakage, not exact row duplication, which is a separate,
+    already-covered defect, `case_exact_duplicate`).
     """
-    rng = np.random.default_rng(seed)
     order_id = ref["meta"]["order_id"].values
     test_idx = ref["test_idx"]
     test_orders_df = pd.DataFrame({"pos": test_idx, "order_id": order_id[test_idx]})
-    sibling_pos = test_orders_df.groupby("order_id")["pos"].apply(
-        lambda s: s.values[1:] if len(s) > 1 else np.array([], dtype=int))
-    sibling_pos = np.concatenate(sibling_pos.values) if len(sibling_pos) else np.array([], dtype=int)
+    grouped = test_orders_df.groupby("order_id")["pos"].apply(lambda s: s.values)
+    kept_pos = np.array([v[0] for v in grouped.values])
+    sibling_pos = np.concatenate([v[1:] for v in grouped.values if len(v) > 1]) \
+        if any(len(v) > 1 for v in grouped.values) else np.array([], dtype=int)
     train_idx = np.concatenate([ref["train_idx"], sibling_pos])
-    return {"train_idx": train_idx, "test_idx": test_idx, "X": ref["X"],
-            "n_leaked_siblings": len(sibling_pos)}
+    assert len(np.intersect1d(train_idx, kept_pos)) == 0, \
+        "group-overlap case must not re-score a row used in training"
+    return {"train_idx": train_idx, "test_idx": kept_pos, "X": ref["X"],
+            "n_leaked_siblings": len(sibling_pos), "n_test_orders": len(kept_pos)}
 
 
 def case_group_overlap_olist(ref, seed=RNG_SEED):
     """Defect, Olist: a customer with more than one order inside the held-out test
     window has those other, same-window orders present in training too (illegitimate
     -- distinct from a customer's genuinely past history, which O3a's condition D
-    already shows is not a leakage channel).
+    already shows is not a leakage channel). The scored test set keeps exactly one
+    (the earliest) order per such customer; the customer's other same-window
+    orders move to training and are removed from the scored set, so no row index
+    is ever both trained on and scored.
     """
     customer_id = ref["meta"]["customer_id"].values
+    decision_time = ref["meta"]["decision_time"].values
     test_idx = ref["test_idx"]
-    df = pd.DataFrame({"pos": test_idx, "customer_id": customer_id[test_idx]})
-    extra_pos = df.groupby("customer_id")["pos"].apply(
-        lambda s: s.values[1:] if len(s) > 1 else np.array([], dtype=int))
-    extra_pos = np.concatenate(extra_pos.values) if len(extra_pos) else np.array([], dtype=int)
+    df = pd.DataFrame({"pos": test_idx, "customer_id": customer_id[test_idx],
+                        "decision_time": decision_time[test_idx]}).sort_values("decision_time")
+    grouped = df.groupby("customer_id")["pos"].apply(lambda s: s.values)
+    kept_pos = np.array([v[0] for v in grouped.values])
+    extra_pos = np.concatenate([v[1:] for v in grouped.values if len(v) > 1]) \
+        if any(len(v) > 1 for v in grouped.values) else np.array([], dtype=int)
     train_idx = np.concatenate([ref["train_idx"], extra_pos])
-    return {"train_idx": train_idx, "test_idx": test_idx, "X": ref["X"],
-            "n_leaked_same_window_orders": len(extra_pos)}
+    assert len(np.intersect1d(train_idx, kept_pos)) == 0, \
+        "group-overlap case must not re-score a row used in training"
+    return {"train_idx": train_idx, "test_idx": kept_pos, "X": ref["X"],
+            "n_leaked_same_window_orders": len(extra_pos), "n_test_orders": len(kept_pos)}
 
 
 def case_invalid_schema(ref):

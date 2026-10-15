@@ -1,33 +1,41 @@
-dataset,defect_type,approach,detection_rate,n_cases
-dataco,leaky_feature,verdict_auroc_only,0.0,3
-dataco,leaky_feature,verdict_checklist,0.6666666666666666,3
-dataco,leaky_feature,verdict_stock_gate,1.0,3
-dataco,leaky_feature,verdict_extended_gate,1.0,3
-dataco,exact_duplicate,verdict_auroc_only,0.0,3
-dataco,exact_duplicate,verdict_checklist,0.3333333333333333,3
-dataco,exact_duplicate,verdict_stock_gate,1.0,3
-dataco,exact_duplicate,verdict_extended_gate,1.0,3
-dataco,invalid_schema,verdict_auroc_only,0.0,3
-dataco,invalid_schema,verdict_checklist,0.3333333333333333,3
-dataco,invalid_schema,verdict_stock_gate,1.0,3
-dataco,invalid_schema,verdict_extended_gate,1.0,3
-dataco,group_overlap,verdict_auroc_only,0.0,3
-dataco,group_overlap,verdict_checklist,0.3333333333333333,3
-dataco,group_overlap,verdict_stock_gate,1.0,3
-dataco,group_overlap,verdict_extended_gate,1.0,3
-olist,leaky_feature,verdict_auroc_only,0.0,3
-olist,leaky_feature,verdict_checklist,1.0,3
-olist,leaky_feature,verdict_stock_gate,1.0,3
-olist,leaky_feature,verdict_extended_gate,1.0,3
-olist,exact_duplicate,verdict_auroc_only,0.0,3
-olist,exact_duplicate,verdict_checklist,0.3333333333333333,3
-olist,exact_duplicate,verdict_stock_gate,1.0,3
-olist,exact_duplicate,verdict_extended_gate,1.0,3
-olist,invalid_schema,verdict_auroc_only,0.3333333333333333,3
-olist,invalid_schema,verdict_checklist,0.3333333333333333,3
-olist,invalid_schema,verdict_stock_gate,1.0,3
-olist,invalid_schema,verdict_extended_gate,1.0,3
-olist,group_overlap,verdict_auroc_only,0.3333333333333333,3
-olist,group_overlap,verdict_checklist,0.3333333333333333,3
-olist,group_overlap,verdict_stock_gate,1.0,3
-olist,group_overlap,verdict_extended_gate,1.0,3
+dataset,defect_type,approach,n_cases,blocked_rate,needs_review_rate,pass_rate_unsupported_approval
+dataco,leaky_feature,AUROC-only,3,0.0,0.0,1.0
+dataco,leaky_feature,Metrics-only,3,0.0,0.6666666666666666,0.3333333333333333
+dataco,leaky_feature,Automated checklist,3,0.0,0.6666666666666666,0.3333333333333333
+dataco,leaky_feature,Stock gate,3,0.3333333333333333,0.6666666666666666,0.0
+dataco,leaky_feature,Extended gate,3,0.3333333333333333,0.6666666666666666,0.0
+dataco,exact_duplicate,AUROC-only,3,0.0,0.0,1.0
+dataco,exact_duplicate,Metrics-only,3,0.0,0.3333333333333333,0.6666666666666666
+dataco,exact_duplicate,Automated checklist,3,1.0,0.0,0.0
+dataco,exact_duplicate,Stock gate,3,0.3333333333333333,0.6666666666666666,0.0
+dataco,exact_duplicate,Extended gate,3,1.0,0.0,0.0
+dataco,invalid_schema,AUROC-only,3,0.0,0.0,1.0
+dataco,invalid_schema,Metrics-only,3,0.0,0.3333333333333333,0.6666666666666666
+dataco,invalid_schema,Automated checklist,3,1.0,0.0,0.0
+dataco,invalid_schema,Stock gate,3,1.0,0.0,0.0
+dataco,invalid_schema,Extended gate,3,1.0,0.0,0.0
+dataco,group_overlap,AUROC-only,3,0.0,0.0,1.0
+dataco,group_overlap,Metrics-only,3,0.0,0.3333333333333333,0.6666666666666666
+dataco,group_overlap,Automated checklist,3,0.0,0.3333333333333333,0.6666666666666666
+dataco,group_overlap,Stock gate,3,0.3333333333333333,0.6666666666666666,0.0
+dataco,group_overlap,Extended gate,3,1.0,0.0,0.0
+olist,leaky_feature,AUROC-only,2,0.0,0.0,1.0
+olist,leaky_feature,Metrics-only,2,0.0,1.0,0.0
+olist,leaky_feature,Automated checklist,2,0.0,1.0,0.0
+olist,leaky_feature,Stock gate,2,0.0,1.0,0.0
+olist,leaky_feature,Extended gate,2,0.0,1.0,0.0
+olist,exact_duplicate,AUROC-only,2,0.0,0.0,1.0
+olist,exact_duplicate,Metrics-only,2,0.0,0.0,1.0
+olist,exact_duplicate,Automated checklist,2,1.0,0.0,0.0
+olist,exact_duplicate,Stock gate,2,1.0,0.0,0.0
+olist,exact_duplicate,Extended gate,2,1.0,0.0,0.0
+olist,invalid_schema,AUROC-only,2,0.0,0.0,1.0
+olist,invalid_schema,Metrics-only,2,0.0,0.0,1.0
+olist,invalid_schema,Automated checklist,2,1.0,0.0,0.0
+olist,invalid_schema,Stock gate,2,1.0,0.0,0.0
+olist,invalid_schema,Extended gate,2,1.0,0.0,0.0
+olist,group_overlap,AUROC-only,2,0.0,0.0,1.0
+olist,group_overlap,Metrics-only,2,0.0,0.0,1.0
+olist,group_overlap,Automated checklist,2,0.0,0.0,1.0
+olist,group_overlap,Stock gate,2,0.0,1.0,0.0
+olist,group_overlap,Extended gate,2,0.0,1.0,0.0

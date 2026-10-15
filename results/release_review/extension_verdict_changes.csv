@@ -1,0 +1,5 @@
+dataset,case,model,has_defect,known_baseline_issue,verdict_stock_gate,verdict_extended_gate,group_overlap_fraction
+dataco,defect_exact_duplicate,logreg,True,False,NEEDS_REVIEW,BLOCKED,0.4580527752502275
+dataco,defect_exact_duplicate,gbm,True,False,NEEDS_REVIEW,BLOCKED,0.4580527752502275
+dataco,defect_group_overlap,logreg,True,False,NEEDS_REVIEW,BLOCKED,0.7956323930846224
+dataco,defect_group_overlap,gbm,True,False,NEEDS_REVIEW,BLOCKED,0.7956323930846224

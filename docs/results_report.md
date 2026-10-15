@@ -13,11 +13,15 @@ This document reports every numerical result behind the paper "Evaluating BDP Mo
 
 # Part A — Release-review battery (primary results)
 
+This part supersedes an earlier draft of the same battery, which a second round of external methodological review found to contain three confirmed defects: the group-overlap case left duplicated rows in both training and the scored test set (indistinguishable from exact duplication); the extended check selected its group identifier conditional on which defect was being tested; and detection/false-alarm figures did not separate a pre-existing, defect-independent model failure (Olist's random forest) from this battery's own constructed defects. All three are fixed in the code this report is generated from (`src/release_cases.py`, `src/release_review.py`, `scripts/run_release_review.py`, `scripts/analyze_release_review.py`) and in the numbers below; the fixes changed two of this battery's central findings materially (A4, A6), not cosmetically.
+
 ## A1. Reference pipeline and frozen configuration
 
 Model hyperparameters, frozen from the companion study's chronological-primary tuning and never re-tuned against this evaluation: logistic regression `C=0.1`; random forest 150 trees, max depth 8, min leaf 20; LightGBM 150 trees, 15 leaves, learning rate 0.1.
 
-Frozen decision thresholds: AUROC-only block threshold 0.65; checklist block thresholds (AUROC 0.65, Brier 0.22), checklist review band (calibration slope outside [0.7, 1.4]); stock/extended gate performance floor 0.6 AUROC, adversarial flip-rate ceiling 25% (relaxed from deployment defaults 0.8/5%), validation-category thresholds (leakage ratio 0.95, split-overlap 1%, drift 0.15–0.25 depending on measure) at BDP Model Gate v0.6.0 defaults; extended check (group-identifier overlap, computed on full uncapped index sets) NEEDS_REVIEW at ≥1%, BLOCKED at ≥5%.
+Frozen decision thresholds: AUROC-only block threshold 0.65; metrics-only block thresholds (AUROC 0.65, Brier 0.22), review band (calibration slope outside [0.7, 1.4]); automated checklist = metrics-only rule + a schema check (training/review-time columns must match) + an exact-row-overlap check via row hash (NEEDS_REVIEW at >=1%, BLOCKED at >=5%); stock/extended gate performance floor 0.6 AUROC, adversarial flip-rate ceiling 25% (relaxed from deployment defaults 0.8/5%), validation-category thresholds (leakage ratio 0.95, split-overlap 1%, drift 0.15-0.25 depending on measure) at BDP Model Gate v0.6.0 defaults; extended check (group-identifier overlap, computed on full uncapped index sets, time-aware for Olist's customer-id policy) NEEDS_REVIEW at >=1%, BLOCKED at >=5% — the same thresholds as the automated checklist's overlap check, so neither is quietly more lenient than the other.
+
+The companion study's rolling-origin splitter (`src/splitters.py::rolling_origin_splits`, shared with the O4 analysis in Part B) was corrected to snap train/test boundaries to whole-order boundaries; an uncorrected boundary could split a single DataCo order's rows across a tie in decision time (confirmed: one order, out of several thousand, in the original construction). Every split used in this report, including the primary chronological split and both scenario windows for both datasets, is confirmed to have zero order-id overlap between its training and scored test rows.
 
 ## A2. The seven cases, per dataset
 
@@ -25,135 +29,147 @@ Frozen decision thresholds: AUROC-only block threshold 0.65; checklist block thr
 |---|---|---|---|
 | Clean reference | No defect | Chronological primary split, frozen hyperparameters | Chronological primary split, frozen hyperparameters |
 | Defect: leaked feature | Target leakage | `actual_fulfillment_days` (excluded post-outcome field) added back as a feature | Same field added back as a feature |
-| Defect: exact duplicate | Split overlap | 20% of held-out test rows also inserted into training | 20% of held-out test rows also inserted into training |
-| Defect: group/customer overlap | Non-independence overlap | Sibling line items of test orders (beyond one kept representative) duplicated into training | Same-window orders of a repeat test-period customer duplicated into training |
+| Defect: exact duplicate | Split overlap | 20% of held-out test rows also inserted into training (these rows are, by definition, both trained on and scored) | Same |
+| Defect: group/order (customer) overlap | Non-independence overlap between *distinct* records | For every test order with >1 line item, all but one row move to training; the scored test set is reduced to the one kept row per order, so no row index is ever both trained on and scored | For every customer with >1 order in the test window, all but the earliest order move to training; the scored test set is reduced to the one kept order per customer, same disjointness guarantee |
 | Defect: invalid schema | Schema mismatch | One feature column dropped from the data handed to the review process only (predictions computed correctly beforehand) | Same |
 | Scenario: drift window | Not a defect | Rolling-origin window 9 (highest PSI, 0.0090) | Rolling-origin window 9 (highest PSI, 0.4205) |
 | Scenario: prevalence window | Not a defect | Rolling-origin window 1 (largest prevalence change, weak at +0.0125) | Rolling-origin window 3 (largest prevalence change, +0.1914) |
 
+Every case is asserted at run time to have zero train/test row-index intersection, with `defect_exact_duplicate` as the sole, deliberate exception (its ground truth *is* row reuse). The group/order-overlap case is deliberately **not** an exception: its moved rows are different, distinct records from the ones still scored, not copies of them, which is what makes it mechanically distinct from exact duplication (A4, A6).
+
 ## A3. Full battery: every case x model x approach
 
-The complete 42-row table (`results/release_review/release_review_battery.csv`) backing every number in this report:
+The complete 42-row table (`results/release_review/release_review_battery.csv`), five verdict columns (AUROC-only, metrics-only, automated checklist, stock gate, extended gate) reported separately as PASS / NEEDS_REVIEW / BLOCKED throughout, never collapsed:
 
-| dataset | case | model | auc | brier | cal_slope | stock_gate | checklist | auroc_only | extended_gate |
-|---|---|---|---|---|---|---|---|---|---|
-| dataco | clean_reference | logreg | 0.747 | 0.190 | 0.930 | NEEDS_REVIEW | PASS | PASS | NEEDS_REVIEW |
-| dataco | clean_reference | rf | 0.746 | 0.206 | 2.639 | BLOCKED | NEEDS_REVIEW | PASS | BLOCKED |
-| dataco | clean_reference | gbm | 0.745 | 0.190 | 0.949 | NEEDS_REVIEW | PASS | PASS | NEEDS_REVIEW |
-| dataco | defect_leaky_feature | logreg | 1.000 | 0.0001 | 2.374 | NEEDS_REVIEW | NEEDS_REVIEW | PASS | NEEDS_REVIEW |
-| dataco | defect_leaky_feature | rf | 0.955 | 0.155 | 7.497 | BLOCKED | NEEDS_REVIEW | PASS | BLOCKED |
-| dataco | defect_leaky_feature | gbm | 1.000 | 0.00000 | 1.000 | NEEDS_REVIEW | PASS | PASS | NEEDS_REVIEW |
-| dataco | defect_exact_duplicate | logreg | 0.754 | 0.189 | 0.957 | NEEDS_REVIEW | PASS | PASS | BLOCKED |
-| dataco | defect_exact_duplicate | rf | 0.749 | 0.207 | 2.598 | BLOCKED | NEEDS_REVIEW | PASS | BLOCKED |
-| dataco | defect_exact_duplicate | gbm | 0.761 | 0.188 | 1.007 | NEEDS_REVIEW | PASS | PASS | BLOCKED |
-| dataco | defect_invalid_schema | logreg | 0.747 | 0.190 | 0.930 | BLOCKED | PASS | PASS | BLOCKED |
-| dataco | defect_invalid_schema | rf | 0.746 | 0.206 | 2.639 | BLOCKED | NEEDS_REVIEW | PASS | BLOCKED |
-| dataco | defect_invalid_schema | gbm | 0.745 | 0.190 | 0.949 | BLOCKED | PASS | PASS | BLOCKED |
-| dataco | defect_group_overlap | logreg | 0.766 | 0.187 | 1.009 | BLOCKED | PASS | PASS | BLOCKED |
-| dataco | defect_group_overlap | rf | 0.760 | 0.204 | 2.428 | BLOCKED | NEEDS_REVIEW | PASS | BLOCKED |
-| dataco | defect_group_overlap | gbm | 0.785 | 0.184 | 1.108 | BLOCKED | PASS | PASS | BLOCKED |
-| dataco | scenario_drift | logreg | 0.759 | 0.186 | 1.007 | NEEDS_REVIEW | PASS | PASS | NEEDS_REVIEW |
-| dataco | scenario_drift | rf | 0.757 | 0.206 | 2.953 | BLOCKED | NEEDS_REVIEW | PASS | BLOCKED |
-| dataco | scenario_drift | gbm | 0.758 | 0.186 | 1.028 | NEEDS_REVIEW | PASS | PASS | NEEDS_REVIEW |
-| dataco | scenario_prevalence | logreg | 0.739 | 0.190 | 0.898 | NEEDS_REVIEW | PASS | PASS | NEEDS_REVIEW |
-| dataco | scenario_prevalence | rf | 0.748 | 0.197 | 2.122 | NEEDS_REVIEW | NEEDS_REVIEW | PASS | NEEDS_REVIEW |
-| dataco | scenario_prevalence | gbm | 0.743 | 0.188 | 0.958 | NEEDS_REVIEW | PASS | PASS | NEEDS_REVIEW |
-| olist | clean_reference | logreg | 0.710 | 0.0525 | 0.937 | NEEDS_REVIEW | PASS | PASS | NEEDS_REVIEW |
-| olist | clean_reference | rf | 0.470 | 0.0516 | -0.255 | BLOCKED | BLOCKED | BLOCKED | BLOCKED |
-| olist | clean_reference | gbm | 0.720 | 0.0490 | 1.039 | NEEDS_REVIEW | PASS | PASS | NEEDS_REVIEW |
-| olist | defect_leaky_feature | logreg | 0.999 | 0.0091 | 4.092 | NEEDS_REVIEW | NEEDS_REVIEW | PASS | NEEDS_REVIEW |
-| olist | defect_leaky_feature | rf | 0.702 | 0.0442 | 1.727 | NEEDS_REVIEW | NEEDS_REVIEW | PASS | NEEDS_REVIEW |
-| olist | defect_leaky_feature | gbm | 0.975 | 0.0160 | 0.593 | NEEDS_REVIEW | NEEDS_REVIEW | PASS | NEEDS_REVIEW |
-| olist | defect_exact_duplicate | logreg | 0.724 | 0.0518 | 1.011 | BLOCKED | PASS | PASS | BLOCKED |
-| olist | defect_exact_duplicate | rf | 0.711 | 0.0486 | 2.558 | BLOCKED | NEEDS_REVIEW | PASS | BLOCKED |
-| olist | defect_exact_duplicate | gbm | 0.827 | 0.0436 | 1.243 | BLOCKED | PASS | PASS | BLOCKED |
-| olist | defect_invalid_schema | logreg | 0.710 | 0.0525 | 0.937 | BLOCKED | PASS | PASS | BLOCKED |
-| olist | defect_invalid_schema | rf | 0.470 | 0.0516 | -0.255 | BLOCKED | BLOCKED | BLOCKED | BLOCKED |
-| olist | defect_invalid_schema | gbm | 0.720 | 0.0490 | 1.039 | BLOCKED | PASS | PASS | BLOCKED |
-| olist | defect_group_overlap | logreg | 0.711 | 0.0525 | 0.938 | NEEDS_REVIEW | PASS | PASS | NEEDS_REVIEW |
-| olist | defect_group_overlap | rf | 0.488 | 0.0514 | -0.037 | BLOCKED | BLOCKED | BLOCKED | BLOCKED |
-| olist | defect_group_overlap | gbm | 0.782 | 0.0470 | 1.254 | NEEDS_REVIEW | PASS | PASS | NEEDS_REVIEW |
-| olist | scenario_drift | logreg | 0.634 | 0.0906 | 0.679 | NEEDS_REVIEW | BLOCKED | BLOCKED | NEEDS_REVIEW |
-| olist | scenario_drift | rf | 0.704 | 0.0877 | 2.363 | NEEDS_REVIEW | NEEDS_REVIEW | PASS | NEEDS_REVIEW |
-| olist | scenario_drift | gbm | 0.810 | 0.0777 | 1.156 | NEEDS_REVIEW | PASS | PASS | NEEDS_REVIEW |
-| olist | scenario_prevalence | logreg | 0.665 | 0.2212 | 1.103 | BLOCKED | BLOCKED | PASS | BLOCKED |
-| olist | scenario_prevalence | rf | 0.667 | 0.2280 | 2.183 | BLOCKED | BLOCKED | PASS | BLOCKED |
-| olist | scenario_prevalence | gbm | 0.671 | 0.2152 | 0.834 | BLOCKED | PASS | PASS | BLOCKED |
+| dataset | case | model | auc | brier | cal_slope | auroc_only | metrics_only | checklist | stock_gate | extended_gate | baseline issue |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| dataco | clean_reference | logreg | 0.747 | 0.1902 | 0.930 | PASS | PASS | PASS | NEEDS_REVIEW | NEEDS_REVIEW | |
+| dataco | clean_reference | rf | 0.746 | 0.2061 | 2.639 | PASS | NEEDS_REVIEW | NEEDS_REVIEW | BLOCKED | BLOCKED | |
+| dataco | clean_reference | gbm | 0.745 | 0.1896 | 0.949 | PASS | PASS | PASS | NEEDS_REVIEW | NEEDS_REVIEW | |
+| dataco | defect_leaky_feature | logreg | 1.000 | 0.0001 | 2.374 | PASS | NEEDS_REVIEW | NEEDS_REVIEW | NEEDS_REVIEW | NEEDS_REVIEW | |
+| dataco | defect_leaky_feature | rf | 0.955 | 0.1552 | 7.497 | PASS | NEEDS_REVIEW | NEEDS_REVIEW | BLOCKED | BLOCKED | |
+| dataco | defect_leaky_feature | gbm | 1.000 | 0.0000 | 1.000 | PASS | PASS | PASS | NEEDS_REVIEW | NEEDS_REVIEW | |
+| dataco | defect_exact_duplicate | logreg | 0.754 | 0.1889 | 0.957 | PASS | PASS | BLOCKED | NEEDS_REVIEW | BLOCKED | |
+| dataco | defect_exact_duplicate | rf | 0.749 | 0.2067 | 2.598 | PASS | NEEDS_REVIEW | BLOCKED | BLOCKED | BLOCKED | |
+| dataco | defect_exact_duplicate | gbm | 0.761 | 0.1875 | 1.007 | PASS | PASS | BLOCKED | NEEDS_REVIEW | BLOCKED | |
+| dataco | defect_invalid_schema | logreg | 0.747 | 0.1902 | 0.930 | PASS | PASS | BLOCKED | BLOCKED | BLOCKED | |
+| dataco | defect_invalid_schema | rf | 0.746 | 0.2061 | 2.639 | PASS | NEEDS_REVIEW | BLOCKED | BLOCKED | BLOCKED | |
+| dataco | defect_invalid_schema | gbm | 0.745 | 0.1896 | 0.949 | PASS | PASS | BLOCKED | BLOCKED | BLOCKED | |
+| dataco | defect_group_overlap | logreg | 0.764 | 0.1871 | 1.007 | PASS | PASS | PASS | NEEDS_REVIEW | **BLOCKED** | |
+| dataco | defect_group_overlap | rf | 0.758 | 0.2040 | 2.442 | PASS | NEEDS_REVIEW | NEEDS_REVIEW | BLOCKED | BLOCKED | |
+| dataco | defect_group_overlap | gbm | 0.776 | 0.1849 | 1.085 | PASS | PASS | PASS | NEEDS_REVIEW | **BLOCKED** | |
+| dataco | scenario_drift | logreg | 0.759 | 0.1865 | 1.008 | PASS | PASS | PASS | NEEDS_REVIEW | NEEDS_REVIEW | |
+| dataco | scenario_drift | rf | 0.756 | 0.2056 | 2.966 | PASS | NEEDS_REVIEW | NEEDS_REVIEW | BLOCKED | BLOCKED | |
+| dataco | scenario_drift | gbm | 0.753 | 0.1864 | 1.021 | PASS | PASS | PASS | NEEDS_REVIEW | NEEDS_REVIEW | |
+| dataco | scenario_prevalence | logreg | 0.738 | 0.1906 | 0.892 | PASS | PASS | PASS | NEEDS_REVIEW | NEEDS_REVIEW | |
+| dataco | scenario_prevalence | rf | 0.749 | 0.1976 | 2.163 | PASS | NEEDS_REVIEW | NEEDS_REVIEW | NEEDS_REVIEW | NEEDS_REVIEW | |
+| dataco | scenario_prevalence | gbm | 0.748 | 0.1880 | 0.951 | PASS | PASS | PASS | NEEDS_REVIEW | NEEDS_REVIEW | |
+| olist | clean_reference | logreg | 0.710 | 0.0525 | 0.937 | PASS | PASS | PASS | NEEDS_REVIEW | NEEDS_REVIEW | |
+| olist | clean_reference | rf | 0.470 | 0.0516 | -0.255 | BLOCKED | BLOCKED | BLOCKED | BLOCKED | BLOCKED | **yes** |
+| olist | clean_reference | gbm | 0.720 | 0.0490 | 1.039 | PASS | PASS | PASS | NEEDS_REVIEW | NEEDS_REVIEW | |
+| olist | defect_leaky_feature | logreg | 0.999 | 0.0091 | 4.092 | PASS | NEEDS_REVIEW | NEEDS_REVIEW | NEEDS_REVIEW | NEEDS_REVIEW | |
+| olist | defect_leaky_feature | rf | 0.702 | 0.0442 | 1.727 | PASS | NEEDS_REVIEW | NEEDS_REVIEW | NEEDS_REVIEW | NEEDS_REVIEW | **yes** |
+| olist | defect_leaky_feature | gbm | 0.975 | 0.0160 | 0.593 | PASS | NEEDS_REVIEW | NEEDS_REVIEW | NEEDS_REVIEW | NEEDS_REVIEW | |
+| olist | defect_exact_duplicate | logreg | 0.724 | 0.0518 | 1.011 | PASS | PASS | BLOCKED | BLOCKED | BLOCKED | |
+| olist | defect_exact_duplicate | rf | 0.711 | 0.0486 | 2.558 | PASS | NEEDS_REVIEW | BLOCKED | BLOCKED | BLOCKED | **yes** |
+| olist | defect_exact_duplicate | gbm | 0.827 | 0.0436 | 1.243 | PASS | PASS | BLOCKED | BLOCKED | BLOCKED | |
+| olist | defect_invalid_schema | logreg | 0.710 | 0.0525 | 0.937 | PASS | PASS | BLOCKED | BLOCKED | BLOCKED | |
+| olist | defect_invalid_schema | rf | 0.470 | 0.0516 | -0.255 | BLOCKED | BLOCKED | BLOCKED | BLOCKED | BLOCKED | **yes** |
+| olist | defect_invalid_schema | gbm | 0.720 | 0.0490 | 1.039 | PASS | PASS | BLOCKED | BLOCKED | BLOCKED | |
+| olist | defect_group_overlap | logreg | 0.710 | 0.0525 | 0.932 | PASS | PASS | PASS | NEEDS_REVIEW | NEEDS_REVIEW | |
+| olist | defect_group_overlap | rf | 0.486 | 0.0514 | -0.065 | BLOCKED | BLOCKED | BLOCKED | BLOCKED | BLOCKED | **yes** |
+| olist | defect_group_overlap | gbm | 0.779 | 0.0473 | 1.211 | PASS | PASS | PASS | NEEDS_REVIEW | NEEDS_REVIEW | |
+| olist | scenario_drift | logreg | 0.634 | 0.0906 | 0.679 | BLOCKED | BLOCKED | BLOCKED | NEEDS_REVIEW | NEEDS_REVIEW | |
+| olist | scenario_drift | rf | 0.709 | 0.0877 | 2.454 | PASS | NEEDS_REVIEW | NEEDS_REVIEW | NEEDS_REVIEW | NEEDS_REVIEW | **yes** |
+| olist | scenario_drift | gbm | 0.810 | 0.0777 | 1.156 | PASS | PASS | PASS | NEEDS_REVIEW | NEEDS_REVIEW | |
+| olist | scenario_prevalence | logreg | 0.665 | 0.2212 | 1.103 | PASS | BLOCKED | BLOCKED | BLOCKED | BLOCKED | |
+| olist | scenario_prevalence | rf | 0.667 | 0.2279 | 2.189 | PASS | BLOCKED | BLOCKED | BLOCKED | BLOCKED | **yes** |
+| olist | scenario_prevalence | gbm | 0.671 | 0.2152 | 0.834 | PASS | PASS | PASS | BLOCKED | BLOCKED | |
 
-## A4. Detection (BLOCKED rate), by defect type and dataset
+Rows marked **yes** (Olist random forest, every case) are excluded from every table below; it scores a below-chance AUROC on the clean reference pipeline itself, for a documented, defect-independent reason (Part B, O2), and is reported on its own in A4b.
 
-| Case | DataCo (3 models) | Olist (3 models) | Pooled |
-|---|---|---|---|
-| Clean reference | 1/3 | 1/3 | 2/6 (33%) |
-| Defect: leaked feature | 1/3 | 0/3 | 1/6 (17%) |
-| Defect: exact duplicate (capped) | 1/3 | 1/3 | 2/6 (33%) |
-| Defect: group/customer overlap (capped) | 3/3 | 1/3 | 4/6 (67%) |
-| Defect: invalid schema | 3/3 | 3/3 | 6/6 (100%) |
-| Scenario: drift (not a defect) | 1/3 | 1/3 | 2/6 (33%) |
-| Scenario: prevalence (not a defect) | 0/3 | 3/3 | 3/6 (50%) |
+## A4. Detection: BLOCKED rate by defect type and approach (known-baseline-issue rows excluded)
 
-**Confound note.** Olist's random forest scores a below-chance AUROC (0.469–0.488) on every case built on the companion study's own frozen chronological pipeline, independent of any defect injected here (traced in the companion study to a genuine 2018 service-promise contraction). Every Olist row involving random forest is therefore BLOCKED for this pre-existing reason regardless of case; the logreg/gbm-only reading is:
+| Defect type | AUROC-only | Metrics-only | Automated checklist | Stock gate | Extended gate |
+|---|---|---|---|---|---|
+| DataCo leaked feature | 0/3 | 0/3 | 0/3 | 1/3 | 1/3 |
+| DataCo exact duplicate (capped) | 0/3 | 0/3 | **3/3** | 1/3 | **3/3** |
+| DataCo group/order overlap | 0/3 | 0/3 | 0/3 | 1/3 | **3/3** |
+| DataCo invalid schema | 0/3 | 0/3 | **3/3** | **3/3** | **3/3** |
+| Olist leaked feature | 0/2 | 0/2 | 0/2 | 0/2 | 0/2 |
+| Olist exact duplicate (capped) | 0/2 | 0/2 | **2/2** | **2/2** | **2/2** |
+| Olist group/customer overlap | 0/2 | 0/2 | 0/2 | 0/2 | 0/2 |
+| Olist invalid schema | 0/2 | 0/2 | **2/2** | **2/2** | **2/2** |
+| **Pooled (n=20)** | **0%** | **0%** | **50.0%** | **50.0%** | **70.0%** |
 
-| Case (Olist, logreg + gbm only) | Stock gate | Checklist | AUROC-only |
-|---|---|---|---|
-| Clean reference | 0/2 | 0/2 | 0/2 |
-| Defect: group/customer overlap (capped) | 0/2 | 0/2 | 0/2 |
-| Defect: invalid schema | 2/2 | 0/2 | 0/2 |
+Pooled unsupported-approval rate (PASS on a true-defect case; NOT the complement of the block rate, since NEEDS_REVIEW is a third option): AUROC-only 100%, metrics-only 65%, automated checklist 25%, stock gate 0%, extended gate 0%.
 
-## A5. Which individual check fired, by defect type
+## A4b. Known-baseline-issue rows (Olist random forest), reported on their own
 
-| Defect | DataCo checks firing (count/3 models) | Olist checks firing (count/3 models) |
-|---|---|---|
-| Leaked feature | feature_drift (3/3), calibration (1/3) | feature_drift (3/3) |
-| Exact duplicate (capped) | feature_drift (3/3), calibration (1/3) | feature_drift (2/3), split_overlap (3/3) |
-| Group/customer overlap (capped) | feature_drift (3/3), split_overlap (3/3), calibration (1/3) | feature_drift (3/3), performance_thresholds (1/3) |
-| Invalid schema | feature_drift (3/3), feature_contract (3/3), adversarial_robustness error (3/3), calibration (1/3) | feature_drift (2/3), feature_contract (3/3), adversarial_robustness error (3/3), performance_thresholds (1/3) |
-
-`target_leakage` fires zero times across all six leaked-feature cases in both datasets. `split_overlap` fires inconsistently across datasets for the two row-comparison-dependent defects under capping (reliable on DataCo's group-overlap, absent on DataCo's exact-duplicate; the reverse pattern on Olist). `feature_contract` fires on every single invalid-schema case with no exception.
-
-## A6. Sampling sensitivity: capped (4,000 rows/side) vs. full data, `split_overlap` check, LightGBM
-
-| Dataset | Case | Sample | n_train | n_test | Detected overlap | Flag | Gate status |
+| Case | AUC | Cal. slope | AUROC-only | Metrics-only | Checklist | Stock gate | Extended gate |
 |---|---|---|---|---|---|---|---|
-| DataCo | Exact duplicate | Capped | 4,000 | 4,000 | 0.45% (18/4,000) | OK | NEEDS_REVIEW |
-| DataCo | Exact duplicate | Full | 138,094 | 32,880 | **20.0% (6,576/32,880)** | SPLIT_OVERLAP_RISK | **BLOCKED** |
-| Olist | Exact duplicate | Capped | 4,000 | 4,000 | n/a (below threshold) | OK | NEEDS_REVIEW |
-| Olist | Exact duplicate | Full | 80,751 | 19,236 | **20.0% (3,847/19,236)** | SPLIT_OVERLAP_RISK | **BLOCKED** |
-| DataCo | Group overlap | Capped | 4,000 | 4,000 | n/a | — | BLOCKED (via other check) |
-| DataCo | Group overlap | Full | 153,408 | 32,880 | **66.6% (21,890/32,880)** | SPLIT_OVERLAP_RISK | BLOCKED |
-| Olist | Group overlap | Capped | 4,000 | 4,000 | n/a | — | NEEDS_REVIEW |
-| Olist | Group overlap | Full | 77,130 | 19,236 | **1.2% (226/19,236)** | SPLIT_OVERLAP_RISK | **BLOCKED** |
+| Clean reference | 0.470 | -0.255 | BLOCKED | BLOCKED | BLOCKED | BLOCKED | BLOCKED |
+| Leaked feature | 0.702 | 1.727 | PASS | NEEDS_REVIEW | NEEDS_REVIEW | NEEDS_REVIEW | NEEDS_REVIEW |
+| Exact duplicate | 0.711 | 2.558 | PASS | NEEDS_REVIEW | BLOCKED | BLOCKED | BLOCKED |
+| Invalid schema | 0.470 | -0.255 | BLOCKED | BLOCKED | BLOCKED | BLOCKED | BLOCKED |
+| Group overlap | 0.486 | -0.065 | BLOCKED | BLOCKED | BLOCKED | BLOCKED | BLOCKED |
+| Scenario: drift | 0.709 | 2.454 | PASS | NEEDS_REVIEW | NEEDS_REVIEW | NEEDS_REVIEW | NEEDS_REVIEW |
+| Scenario: prevalence | 0.667 | 2.189 | PASS | BLOCKED | BLOCKED | BLOCKED | BLOCKED |
 
-The injected ground truth (20.0% exact-duplicate rate on both datasets) is recovered exactly on full data in both cases, and missed by roughly a factor of 45 under the 4,000-row cap used throughout the rest of this battery.
+This model family's AUROC never exceeds 0.711 on any case built on the companion study's own frozen chronological pipeline (Part B, O2), independent of any defect; its verdicts here are not evidence about this battery's defects in either direction.
 
-## A7. Cost and check coverage
+## A5. Two different mechanisms, not one: a sampling artefact vs. a structural blind spot
 
-| Metric | Value |
-|---|---|
-| Mean model fit time (all cases, 3 families) | 0.98 s |
-| Mean stock-gate run time (capped sample) | 1.51 s |
-| Maximum stock-gate run time | 1.86 s |
-| Mean extended-gate run time | 1.53 s (stock gate + <0.02 s for the group-overlap check) |
-| Mean AUROC-only / checklist decision time | <0.01 ms |
-| Mean checks run per gate call | 33.5 |
-| Mean skip rate (NOT_APPLICABLE), all case types | 44.1–45.5% (consistent across case types) |
+An earlier version of the group-overlap case left duplicated rows scored in the same set they were trained on, making it mechanically indistinguishable from exact duplication; corrected (A1-A2), the two defects' full-data detection is now measured separately and gives two different answers:
 
-Skips are driven almost entirely by two omitted optional inputs: `protected_df` (skips every fairness check) and `latencies_ms` (skips the latency-specific performance check) — both reasonable omissions for a research-stage evaluation, reported here precisely so the omission, not just its consequence, is visible.
+| Defect | Full-data overlap detected (`split_overlap` check, LightGBM) | Full-data gate status | Capped (4,000/side) overlap detected | Capped gate status (this check specifically) |
+|---|---|---|---|---|
+| DataCo exact duplicate | **20.0%** (6,576/32,880) | BLOCKED | 0.4% (18/4,000) | OK (not flagged) |
+| Olist exact duplicate | **20.0%** (3,853/19,236) | BLOCKED | 1.0% (41/4,000) | SPLIT_OVERLAP_RISK (flagged, at the threshold boundary) |
+| DataCo group/order overlap | **0.0%** | OK (not flagged) | 0.0% | OK (not flagged) |
+| Olist group/customer overlap | **0.0%** (feature-row comparison) | OK (not flagged) | 0.0% | OK (not flagged) |
 
-## A8. Extended-gate comparison (group-identifier overlap check)
+Exact duplication: the injected 20.0% ground truth is recovered exactly on full data in both datasets; capping to 4,000 rows/side understates it ~20-fold on DataCo (lands below the 1% threshold) and ~20-fold on Olist too, but Olist's cap is a larger share of its smaller test set (20.8% vs. DataCo's 12.2%), so the same proportional loss happens to land just above, not below, the threshold there. This is a genuine, reproducible sampling artefact.
 
-| Case | Group overlap fraction (full data) | Extended check status |
+Group/order overlap: the stock gate's row-level `split_overlap` check detects **zero** percent of this defect **on full, uncapped data**, on both datasets. This is not a sampling artefact — it does not improve with more data, because the rows this defect moves into training are different, distinct records (a different line item of the same order; a different order of the same customer) that do not share an identical or near-identical feature vector with the rows still being scored. A row-level comparison cannot see a leakage channel defined at the group level.
+
+## A6. The extended check: what it recovers, and where it only adds diagnostic evidence
+
+Comparing the stock gate's verdict against the extended gate's verdict row by row (not pooled rates), the verdict category itself changes in exactly four rows, all DataCo, all the two row-comparison-dependent defects, logreg and gbm only (random forest's stock verdict was already BLOCKED in both cases, for its own calibration reasons, leaving no higher category to move to):
+
+| Dataset | Case | Model | Stock gate | Extended gate | Group-overlap fraction (full index arrays) |
+|---|---|---|---|---|---|
+| dataco | defect_exact_duplicate | logreg | NEEDS_REVIEW | **BLOCKED** | 0.458 |
+| dataco | defect_exact_duplicate | gbm | NEEDS_REVIEW | **BLOCKED** | 0.458 |
+| dataco | defect_group_overlap | logreg | NEEDS_REVIEW | **BLOCKED** | 0.796 |
+| dataco | defect_group_overlap | gbm | NEEDS_REVIEW | **BLOCKED** | 0.796 |
+
+On DataCo, the extension changes the actual release recommendation (NEEDS_REVIEW -> BLOCKED) for both defects. On Olist, exact duplication is already caught by the stock gate itself (A5, at the threshold boundary), so the extension matches rather than improves it; for group/customer overlap, the extended check's own time-aware measurement (which produces zero overlap on every legitimate returning-customer control, including the clean reference) gives a fraction in the 1-2% range — above its own 1% NEEDS_REVIEW threshold but below its 5% BLOCKED threshold — so the verdict stays at NEEDS_REVIEW, now carrying a specific, named, quantified mechanism the stock gate's own flags do not provide, but not a changed release action. Across every clean and scenario case in both datasets, the extended check's measured overlap fraction is zero or negligible, so none of the above comes at the cost of a new false alarm.
+
+## A7. Which individual check fired, by defect type (known-baseline-issue rows excluded)
+
+| Defect | DataCo: checks producing a risk flag | Olist: checks producing a risk flag |
 |---|---|---|
-| DataCo clean reference | ~0% | PASS |
-| DataCo exact duplicate | matches group overlap of duplicated rows' order ids | BLOCKED |
-| DataCo group overlap | 66.6% | BLOCKED |
-| DataCo invalid schema | ~0% | PASS (defect caught via stock gate's feature_contract instead) |
-| Olist clean reference | ~0% | PASS |
-| Olist exact duplicate | matches duplicated rows' order ids | BLOCKED |
-| Olist group overlap | 3.3% (capped computation; 1.2% on full index arrays) | NEEDS_REVIEW/BLOCKED depending on sample |
-| Scenario cases (both datasets) | ~0% | PASS |
+| Leaked feature | feature_drift, calibration (1/3) — **no leakage-specific check fires** | feature_drift — **no leakage-specific check fires** |
+| Exact duplicate (capped) | feature_drift, calibration (1/3) — **split_overlap does not fire** | feature_drift, **split_overlap fires on every model** |
+| Group/order overlap | feature_drift, calibration (1/3) — **split_overlap does not fire on full or capped data** | feature_drift, performance_thresholds (1/3) — **split_overlap does not fire** |
+| Invalid schema | feature_drift, **feature_contract fires on every model**, adversarial_robustness error, calibration (1/3) | feature_drift, **feature_contract fires on every model**, adversarial_robustness error, performance_thresholds (1/3) |
 
-The extended check is computed on the full training/test index arrays regardless of the stock gate's own row cap, so its detection of the exact-duplicate and group-overlap defects does not depend on the sampling artefact documented in A6, and its flag rate on clean/scenario cases does not exceed the stock gate's own baseline.
+`target_leakage` fires zero times across all six leaked-feature cases in both datasets. `feature_contract` fires on every single invalid-schema case with no exception — the one check this report found no evidence depends on sampling, model family, or dataset.
+
+## A8. Review burden, cost, and check coverage
+
+| Approach | Pooled detection (BLOCKED, n=20) | Unsupported approval (PASS on defect) | False alarm on clean reference (BLOCKED, n=5) | Review burden (NEEDS_REVIEW-or-BLOCKED, n=35) | Mean cost/case |
+|---|---|---|---|---|---|
+| AUROC-only | 0% | 100% | 0% | 2.9% | <0.01 ms |
+| Metrics-only | 0% | 65% | 0% | 34.3% | <0.01 ms |
+| Automated checklist | 50.0% | 25.0% | 0% | 57.1% | 72 ms |
+| Stock gate | 50.0% | 0% | 20.0% (DataCo rf, calibration) | 100% | 1.51 s mean, 1.82 s max |
+| Extended gate | 70.0% | 0% | 20.0% (same, unaffected) | 100% | 1.52 s mean |
+
+Defensible blocks on legitimate scenarios, not counted as methodology false alarms: Olist `scenario_drift`, logreg (AUROC 0.634, genuinely below the 0.65 threshold) — metrics-only and the automated checklist both block it for that real reason; Olist `scenario_prevalence`, logreg (Brier 0.221, genuinely above the 0.22 threshold) and gbm (expected calibration error 0.182, bootstrap CI [0.170, 0.196], entirely above the gate's own 0.1 ceiling, a more sensitive calibration measure than this report's own checklist computes) — both defensible, measured, real effects of a legitimate distribution shift.
+
+Check coverage: mean 33.5 checks run per case; mean 44.8% returned NOT_APPLICABLE (skipped), essentially constant across case types (41-47%), driven almost entirely by two omitted optional inputs (`protected_df`, `latencies_ms`) rather than by any individual case.
 
 ---
 
@@ -512,4 +528,4 @@ A full demonstration HTML report (`report.to_html()`) was generated for the chro
 
 # Software and reproducibility
 
-Python 3.13.14; pandas 2.2; numpy 2.4; scikit-learn 1.7.2; lightgbm 4.6.0; scipy 1.17.1; bdp-model-gate 0.6.0 (pinned; PyPI's current release at analysis time was 0.7.0). Random seed 20261015 throughout. Part A's battery is produced by `src/release_cases.py` (case construction), `src/release_review.py` (comparator approaches, frozen thresholds, extended check), `scripts/run_release_review.py` (the battery runner) and `scripts/analyze_release_review.py` (post-processing). All code, the registered analysis plan, and every CSV/JSON backing this report are released at `github.com/chaqBD/BDP-Validation-Paper`.
+Python 3.13.14; pandas 2.2; numpy 2.4; scikit-learn 1.7.2; lightgbm 4.6.0; scipy 1.17.1; bdp-model-gate 0.6.0 (pinned exactly via `requirements.txt` and the wheel supplied with the proposal; `pip show bdp-model-gate` confirms `Version: 0.6.0` in this environment). Random seed 20261015 throughout. Part A's battery is produced by `src/release_cases.py` (case construction, with the integrity assertion that no row is both trained on and scored except for the exact-duplicate case), `src/release_review.py` (comparator approaches, frozen thresholds, the fixed-policy extended check), `scripts/run_release_review.py` (the battery runner), `scripts/analyze_release_review.py` (the single canonical post-processing script every table in Part A is copied from) and `scripts/run_sampling_sensitivity.py` (regenerates A5's capped-vs-full comparison). All code, the registered analysis plan, and every CSV/JSON backing this report are released at `github.com/chaqBD/BDP-Validation-Paper`.

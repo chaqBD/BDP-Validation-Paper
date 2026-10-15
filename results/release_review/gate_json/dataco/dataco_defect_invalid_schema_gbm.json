@@ -5,7 +5,7 @@
   "model_score": 0.754,
   "model_auc": 0.754,
   "n_flags": 6,
-  "total_duration_ms": 1360.23,
+  "total_duration_ms": 1394.57,
   "results_by_category": {
     "validation": [
       {
@@ -19,7 +19,7 @@
           "min_power": 0.8,
           "n_features_scored": 22
         },
-        "duration_ms": 13.67
+        "duration_ms": 12.51
       },
       {
         "check_name": "split_overlap",
@@ -32,7 +32,7 @@
           "duplicate_fraction": 0.0,
           "threshold": 0.05
         },
-        "duration_ms": 10.94
+        "duration_ms": 10.92
       },
       {
         "check_name": "split_overlap",
@@ -46,7 +46,7 @@
           "threshold": 0.01,
           "n_columns_compared": 22
         },
-        "duration_ms": 10.94
+        "duration_ms": 10.92
       },
       {
         "check_name": "validation_strategy",
@@ -89,7 +89,7 @@
           "measure": "total variation distance",
           "n_features_scored": 22
         },
-        "duration_ms": 15.01
+        "duration_ms": 18.77
       },
       {
         "check_name": "feature_drift",
@@ -103,7 +103,7 @@
           "measure": "total variation distance",
           "n_features_scored": 22
         },
-        "duration_ms": 15.01
+        "duration_ms": 18.77
       },
       {
         "check_name": "feature_drift",
@@ -117,7 +117,7 @@
           "measure": "total variation distance",
           "n_features_scored": 22
         },
-        "duration_ms": 15.01
+        "duration_ms": 18.77
       },
       {
         "check_name": "feature_drift",
@@ -131,7 +131,7 @@
           "measure": "total variation distance",
           "n_features_scored": 22
         },
-        "duration_ms": 15.02
+        "duration_ms": 18.77
       }
     ],
     "fairness": [
@@ -238,7 +238,7 @@
           "ci_level": 0.95,
           "bootstrap_samples": 1000
         },
-        "duration_ms": 1113.47
+        "duration_ms": 1139.41
       },
       {
         "check_name": "calibration",
@@ -263,7 +263,7 @@
           "ci_level": 0.95,
           "bootstrap_samples": 1000
         },
-        "duration_ms": 138.53
+        "duration_ms": 134.48
       },
       {
         "check_name": "actual_vs_expected",
@@ -291,7 +291,7 @@
         "metadata": {
           "check": "model_card.legal_basis"
         },
-        "duration_ms": 0.02
+        "duration_ms": 0.01
       },
       {
         "check_name": "compliance_mapping",
@@ -301,7 +301,7 @@
         "metadata": {
           "check": "model_card.data_minimization_justification"
         },
-        "duration_ms": 0.02
+        "duration_ms": 0.01
       },
       {
         "check_name": "compliance_mapping",
@@ -311,7 +311,7 @@
         "metadata": {
           "check": "model_card.training_data_source"
         },
-        "duration_ms": 0.02
+        "duration_ms": 0.01
       },
       {
         "check_name": "compliance_mapping",
@@ -322,7 +322,7 @@
           "check": "dpia_trigger",
           "is_high_risk": false
         },
-        "duration_ms": 0.02
+        "duration_ms": 0.01
       },
       {
         "check_name": "compliance_mapping",
@@ -333,7 +333,7 @@
           "check": "explainability_requirement",
           "influences_person": false
         },
-        "duration_ms": 0.02
+        "duration_ms": 0.01
       },
       {
         "check_name": "monotonicity",
@@ -359,7 +359,7 @@
         "detail": "check raised an exception: ValueError(\"columns are missing: {'Days for shipment (scheduled)'}\")",
         "blocking": true,
         "metadata": {},
-        "duration_ms": 5.11
+        "duration_ms": 3.92
       },
       {
         "check_name": "pii_leakage",
@@ -367,7 +367,7 @@
         "detail": "no PII patterns detected",
         "blocking": true,
         "metadata": {},
-        "duration_ms": 7.29
+        "duration_ms": 7.12
       },
       {
         "check_name": "prompt_injection",
@@ -385,7 +385,7 @@
         "metadata": {
           "n_strings_scanned": 32
         },
-        "duration_ms": 0.09
+        "duration_ms": 0.12
       }
     ]
   }

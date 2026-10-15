@@ -70,8 +70,10 @@ Section 7.7 of the proposal names the [BDP Model Gate](https://pypi.org/project/
 (Oden, 2026) as the tool producing standardised validation, calibration and drift reports
 for every design. `src/gate_integration.py` runs it for every (validation design, model)
 combination fitted in O2 and saves its PASS / NEEDS_REVIEW / BLOCKED report to
-`results/o2_design_comparison/gate_reports/<dataset>/`. The proposal cites v0.6.0; this
-repository ran v0.7.0 (the current PyPI release at the time of analysis). The gate's
+`results/o2_design_comparison/gate_reports/<dataset>/`. The proposal cites v0.6.0; this repository is pinned to exactly that version
+(`pip show bdp-model-gate` reports `Version: 0.6.0`), installed from the wheel
+supplied alongside the proposal rather than from PyPI, whose current release at
+analysis time had moved to v0.7.0. The gate's
 performance/security thresholds were relaxed from its deployment-grade defaults
 (`min_score` 0.8 -> 0.6, adversarial flip-rate 0.05 -> 0.25) because this study evaluates
 validation *methodology*, not production readiness; the validation-category thresholds

@@ -64,14 +64,31 @@ def match_training_size(train_idx_dict, meta, group_col="order_id", seed=0):
     return matched, min_orders
 
 
+def _snap_forward_to_group_boundary(pos, group_sorted):
+    """Advance `pos` until it does not fall strictly inside a run of identical
+    group ids in `group_sorted` (e.g. two different orders tied on decision time,
+    with their rows interleaved in storage order, must not be split by a cut that
+    lands between two of the same order's rows). A no-op when every position is
+    already its own group, as for a row = order dataset."""
+    n = len(group_sorted)
+    while 0 < pos < n and group_sorted[pos] == group_sorted[pos - 1]:
+        pos += 1
+    return min(pos, n)
+
+
 def rolling_origin_splits(meta, n_origins=6, min_train_frac=0.5, test_frac_per_origin=0.08):
     """Expanding-window rolling-origin splits (Section 7.4).
+
+    Boundaries are snapped so that no group (order id) is ever split across the
+    train/test cut, even when two different groups are tied on decision time and
+    happen to be interleaved in storage order within that tie.
 
     Returns a list of dicts with train_idx, test_idx, origin_time (start of the
     test window) and horizon_end (end of the test window).
     """
-    order = np.argsort(meta["decision_time"].values)
+    order = np.argsort(meta["decision_time"].values, kind="stable")
     times_sorted = meta["decision_time"].values[order]
+    group_sorted = meta["order_id"].values[order] if "order_id" in meta.columns else order
     n = len(order)
 
     min_train_n = int(n * min_train_frac)
@@ -82,9 +99,9 @@ def rolling_origin_splits(meta, n_origins=6, min_train_frac=0.5, test_frac_per_o
     splits = []
     start = min_train_n
     for i in range(n_origins):
-        train_end = start + i * step
+        train_end = _snap_forward_to_group_boundary(start + i * step, group_sorted)
         test_start = train_end
-        test_end = min(test_start + test_n, n)
+        test_end = _snap_forward_to_group_boundary(min(test_start + test_n, n), group_sorted)
         if test_start >= n or test_end - test_start < 20:
             break
         train_pos = order[:train_end]

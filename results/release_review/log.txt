@@ -4,49 +4,49 @@ check=adversarial_robustness raised an exception: ValueError("columns are missin
 check=adversarial_robustness raised an exception: ValueError("columns are missing: {'promised_days'}")
 check=adversarial_robustness raised an exception: ValueError("columns are missing: {'promised_days'}")
 check=adversarial_robustness raised an exception: ValueError("columns are missing: {'promised_days'}")
-[dataco] clean_reference           logreg   auc=0.747 auroc_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[dataco] clean_reference           rf       auc=0.746 auroc_only=PASS          checklist=NEEDS_REVIEW  stock=BLOCKED       extended=BLOCKED      
-[dataco] clean_reference           gbm      auc=0.745 auroc_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[dataco] defect_leaky_feature      logreg   auc=1.000 auroc_only=PASS          checklist=NEEDS_REVIEW  stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[dataco] defect_leaky_feature      rf       auc=0.955 auroc_only=PASS          checklist=NEEDS_REVIEW  stock=BLOCKED       extended=BLOCKED      
-[dataco] defect_leaky_feature      gbm      auc=1.000 auroc_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[dataco] defect_exact_duplicate    logreg   auc=0.754 auroc_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=BLOCKED      
-[dataco] defect_exact_duplicate    rf       auc=0.749 auroc_only=PASS          checklist=NEEDS_REVIEW  stock=BLOCKED       extended=BLOCKED      
-[dataco] defect_exact_duplicate    gbm      auc=0.761 auroc_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=BLOCKED      
-[dataco] defect_invalid_schema     logreg   auc=0.747 auroc_only=PASS          checklist=PASS          stock=BLOCKED       extended=BLOCKED      
-[dataco] defect_invalid_schema     rf       auc=0.746 auroc_only=PASS          checklist=NEEDS_REVIEW  stock=BLOCKED       extended=BLOCKED      
-[dataco] defect_invalid_schema     gbm      auc=0.745 auroc_only=PASS          checklist=PASS          stock=BLOCKED       extended=BLOCKED      
-[dataco] defect_group_overlap      logreg   auc=0.766 auroc_only=PASS          checklist=PASS          stock=BLOCKED       extended=BLOCKED      
-[dataco] defect_group_overlap      rf       auc=0.760 auroc_only=PASS          checklist=NEEDS_REVIEW  stock=BLOCKED       extended=BLOCKED      
-[dataco] defect_group_overlap      gbm      auc=0.785 auroc_only=PASS          checklist=PASS          stock=BLOCKED       extended=BLOCKED      
-[dataco] scenario_drift            logreg   auc=0.759 auroc_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[dataco] scenario_drift            rf       auc=0.757 auroc_only=PASS          checklist=NEEDS_REVIEW  stock=BLOCKED       extended=BLOCKED      
-[dataco] scenario_drift            gbm      auc=0.758 auroc_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[dataco] scenario_prevalence       logreg   auc=0.739 auroc_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[dataco] scenario_prevalence       rf       auc=0.748 auroc_only=PASS          checklist=NEEDS_REVIEW  stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[dataco] scenario_prevalence       gbm      auc=0.743 auroc_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[dataco] battery done in 65.6s
-[olist] clean_reference           logreg   auc=0.710 auroc_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[olist] clean_reference           rf       auc=0.470 auroc_only=BLOCKED       checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
-[olist] clean_reference           gbm      auc=0.720 auroc_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[olist] defect_leaky_feature      logreg   auc=0.999 auroc_only=PASS          checklist=NEEDS_REVIEW  stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[olist] defect_leaky_feature      rf       auc=0.702 auroc_only=PASS          checklist=NEEDS_REVIEW  stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[olist] defect_leaky_feature      gbm      auc=0.975 auroc_only=PASS          checklist=NEEDS_REVIEW  stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[olist] defect_exact_duplicate    logreg   auc=0.724 auroc_only=PASS          checklist=PASS          stock=BLOCKED       extended=BLOCKED      
-[olist] defect_exact_duplicate    rf       auc=0.711 auroc_only=PASS          checklist=NEEDS_REVIEW  stock=BLOCKED       extended=BLOCKED      
-[olist] defect_exact_duplicate    gbm      auc=0.827 auroc_only=PASS          checklist=PASS          stock=BLOCKED       extended=BLOCKED      
-[olist] defect_invalid_schema     logreg   auc=0.710 auroc_only=PASS          checklist=PASS          stock=BLOCKED       extended=BLOCKED      
-[olist] defect_invalid_schema     rf       auc=0.470 auroc_only=BLOCKED       checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
-[olist] defect_invalid_schema     gbm      auc=0.720 auroc_only=PASS          checklist=PASS          stock=BLOCKED       extended=BLOCKED      
-[olist] defect_group_overlap      logreg   auc=0.711 auroc_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[olist] defect_group_overlap      rf       auc=0.488 auroc_only=BLOCKED       checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
-[olist] defect_group_overlap      gbm      auc=0.782 auroc_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[olist] scenario_drift            logreg   auc=0.634 auroc_only=BLOCKED       checklist=BLOCKED       stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[olist] scenario_drift            rf       auc=0.704 auroc_only=PASS          checklist=NEEDS_REVIEW  stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[olist] scenario_drift            gbm      auc=0.810 auroc_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
-[olist] scenario_prevalence       logreg   auc=0.665 auroc_only=PASS          checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
-[olist] scenario_prevalence       rf       auc=0.667 auroc_only=PASS          checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
-[olist] scenario_prevalence       gbm      auc=0.671 auroc_only=PASS          checklist=PASS          stock=BLOCKED       extended=BLOCKED      
-[olist] battery done in 74.2s
+[dataco] clean_reference           logreg   auc=0.747 auroc_only=PASS          metrics_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[dataco] clean_reference           rf       auc=0.746 auroc_only=PASS          metrics_only=NEEDS_REVIEW  checklist=NEEDS_REVIEW  stock=BLOCKED       extended=BLOCKED      
+[dataco] clean_reference           gbm      auc=0.745 auroc_only=PASS          metrics_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[dataco] defect_leaky_feature      logreg   auc=1.000 auroc_only=PASS          metrics_only=NEEDS_REVIEW  checklist=NEEDS_REVIEW  stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[dataco] defect_leaky_feature      rf       auc=0.955 auroc_only=PASS          metrics_only=NEEDS_REVIEW  checklist=NEEDS_REVIEW  stock=BLOCKED       extended=BLOCKED      
+[dataco] defect_leaky_feature      gbm      auc=1.000 auroc_only=PASS          metrics_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[dataco] defect_exact_duplicate    logreg   auc=0.754 auroc_only=PASS          metrics_only=PASS          checklist=BLOCKED       stock=NEEDS_REVIEW  extended=BLOCKED      
+[dataco] defect_exact_duplicate    rf       auc=0.749 auroc_only=PASS          metrics_only=NEEDS_REVIEW  checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
+[dataco] defect_exact_duplicate    gbm      auc=0.761 auroc_only=PASS          metrics_only=PASS          checklist=BLOCKED       stock=NEEDS_REVIEW  extended=BLOCKED      
+[dataco] defect_invalid_schema     logreg   auc=0.747 auroc_only=PASS          metrics_only=PASS          checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
+[dataco] defect_invalid_schema     rf       auc=0.746 auroc_only=PASS          metrics_only=NEEDS_REVIEW  checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
+[dataco] defect_invalid_schema     gbm      auc=0.745 auroc_only=PASS          metrics_only=PASS          checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
+[dataco] defect_group_overlap      logreg   auc=0.764 auroc_only=PASS          metrics_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=BLOCKED      
+[dataco] defect_group_overlap      rf       auc=0.758 auroc_only=PASS          metrics_only=NEEDS_REVIEW  checklist=NEEDS_REVIEW  stock=BLOCKED       extended=BLOCKED      
+[dataco] defect_group_overlap      gbm      auc=0.776 auroc_only=PASS          metrics_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=BLOCKED      
+[dataco] scenario_drift            logreg   auc=0.759 auroc_only=PASS          metrics_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[dataco] scenario_drift            rf       auc=0.756 auroc_only=PASS          metrics_only=NEEDS_REVIEW  checklist=NEEDS_REVIEW  stock=BLOCKED       extended=BLOCKED      
+[dataco] scenario_drift            gbm      auc=0.753 auroc_only=PASS          metrics_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[dataco] scenario_prevalence       logreg   auc=0.738 auroc_only=PASS          metrics_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[dataco] scenario_prevalence       rf       auc=0.749 auroc_only=PASS          metrics_only=NEEDS_REVIEW  checklist=NEEDS_REVIEW  stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[dataco] scenario_prevalence       gbm      auc=0.748 auroc_only=PASS          metrics_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[dataco] battery done in 67.9s
+[olist] clean_reference           logreg   auc=0.710 auroc_only=PASS          metrics_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[olist] clean_reference           rf       auc=0.470 auroc_only=BLOCKED       metrics_only=BLOCKED       checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
+[olist] clean_reference           gbm      auc=0.720 auroc_only=PASS          metrics_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[olist] defect_leaky_feature      logreg   auc=0.999 auroc_only=PASS          metrics_only=NEEDS_REVIEW  checklist=NEEDS_REVIEW  stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[olist] defect_leaky_feature      rf       auc=0.702 auroc_only=PASS          metrics_only=NEEDS_REVIEW  checklist=NEEDS_REVIEW  stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[olist] defect_leaky_feature      gbm      auc=0.975 auroc_only=PASS          metrics_only=NEEDS_REVIEW  checklist=NEEDS_REVIEW  stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[olist] defect_exact_duplicate    logreg   auc=0.724 auroc_only=PASS          metrics_only=PASS          checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
+[olist] defect_exact_duplicate    rf       auc=0.711 auroc_only=PASS          metrics_only=NEEDS_REVIEW  checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
+[olist] defect_exact_duplicate    gbm      auc=0.827 auroc_only=PASS          metrics_only=PASS          checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
+[olist] defect_invalid_schema     logreg   auc=0.710 auroc_only=PASS          metrics_only=PASS          checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
+[olist] defect_invalid_schema     rf       auc=0.470 auroc_only=BLOCKED       metrics_only=BLOCKED       checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
+[olist] defect_invalid_schema     gbm      auc=0.720 auroc_only=PASS          metrics_only=PASS          checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
+[olist] defect_group_overlap      logreg   auc=0.710 auroc_only=PASS          metrics_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[olist] defect_group_overlap      rf       auc=0.486 auroc_only=BLOCKED       metrics_only=BLOCKED       checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
+[olist] defect_group_overlap      gbm      auc=0.779 auroc_only=PASS          metrics_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[olist] scenario_drift            logreg   auc=0.634 auroc_only=BLOCKED       metrics_only=BLOCKED       checklist=BLOCKED       stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[olist] scenario_drift            rf       auc=0.709 auroc_only=PASS          metrics_only=NEEDS_REVIEW  checklist=NEEDS_REVIEW  stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[olist] scenario_drift            gbm      auc=0.810 auroc_only=PASS          metrics_only=PASS          checklist=PASS          stock=NEEDS_REVIEW  extended=NEEDS_REVIEW 
+[olist] scenario_prevalence       logreg   auc=0.665 auroc_only=PASS          metrics_only=BLOCKED       checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
+[olist] scenario_prevalence       rf       auc=0.667 auroc_only=PASS          metrics_only=BLOCKED       checklist=BLOCKED       stock=BLOCKED       extended=BLOCKED      
+[olist] scenario_prevalence       gbm      auc=0.671 auroc_only=PASS          metrics_only=PASS          checklist=PASS          stock=BLOCKED       extended=BLOCKED      
+[olist] battery done in 74.8s
 
 Saved to C:\Users\pingc\OneDrive\Documents\BDP-Validation-Paper\results\release_review\release_review_battery.csv
