@@ -11,3 +11,7 @@ results/cache/
 bdp_model_gate-*.whl
 bdp_model_gate-*.tar.gz
 bdp-model-gate-DESCRIPTION.pdf
+
+# Generated document builds (source is docs/*.md; .docx deliverables live in Downloads)
+docs/build/
+node_modules/
