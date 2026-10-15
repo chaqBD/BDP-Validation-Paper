@@ -15,6 +15,31 @@ from .splitters import rolling_origin_splits
 RNG_SEED = 20261015
 
 
+def _label_known_time(meta):
+    """When each row's outcome actually became observable: decision_time plus the
+    time the outcome takes to resolve (shipment transit). A row's label is not
+    genuinely knowable before this point, independent of when the row itself was
+    recorded.
+    """
+    decision_time = meta["decision_time"].values
+    fulfillment_days = meta["actual_fulfillment_days"].values
+    return decision_time + fulfillment_days.astype("timedelta64[D]")
+
+
+def _enforce_label_availability(meta, train_idx, cutoff):
+    """Drop training rows whose outcome had not actually resolved by the release
+    cutoff (e.g. a shipment still in transit at that date). Without this, a
+    "clean" training set can itself contain a subtle label-availability leak --
+    rows included as if their outcome were known as of the cutoff when it was not
+    -- which is a different failure mode from the group/row-identity defects this
+    battery otherwise constructs. Affects both datasets (DataCo ~0.5%, Olist
+    ~2.7% of the uncorrected training population) because both outcomes are
+    resolved only after a shipping delay following decision_time.
+    """
+    known_time = _label_known_time(meta)[train_idx]
+    return train_idx[known_time <= cutoff]
+
+
 def _reference(dataset):
     if dataset == "dataco":
         df = dc.load_raw()
@@ -26,8 +51,13 @@ def _reference(dataset):
         group_col = "order_id"  # Olist row = order; "related-order overlap" is customer-level
     designs, _ = build_designs(meta, test_size=0.2, seed=RNG_SEED)
     train_idx, test_idx = designs["chronological_primary"]
+    cutoff = meta["decision_time"].values[test_idx].min()
+    n_before = len(train_idx)
+    train_idx = _enforce_label_availability(meta, train_idx, cutoff)
+    n_dropped_unresolved = n_before - len(train_idx)
     return {"X": X, "y": y, "meta": meta, "num": num, "cat": cat,
-            "train_idx": train_idx, "test_idx": test_idx, "group_col": group_col}
+            "train_idx": train_idx, "test_idx": test_idx, "group_col": group_col,
+            "cutoff": cutoff, "n_dropped_unresolved_label": n_dropped_unresolved}
 
 
 def case_clean(ref):
@@ -56,7 +86,7 @@ def case_exact_duplicate(ref, frac=0.2, seed=RNG_SEED):
     dup_rows = rng.choice(test_idx, size=n_dup, replace=False)
     train_idx = np.concatenate([ref["train_idx"], dup_rows])
     return {"train_idx": train_idx, "test_idx": test_idx, "X": ref["X"],
-            "n_duplicated": n_dup}
+            "n_duplicated": n_dup, "injected_test_rows": dup_rows}
 
 
 def case_group_overlap_dataco(ref, seed=RNG_SEED):
@@ -132,5 +162,6 @@ def case_scenario(dataset, origin_index, n_origins=10, min_train_frac=0.4,
     splits = rolling_origin_splits(meta, n_origins=n_origins, min_train_frac=min_train_frac,
                                     test_frac_per_origin=test_frac_per_origin)
     s = splits[origin_index]
-    return {"train_idx": s["train_idx"], "test_idx": s["test_idx"], "X": X, "y": y,
+    train_idx = _enforce_label_availability(meta, s["train_idx"], s["origin_time"])
+    return {"train_idx": train_idx, "test_idx": s["test_idx"], "X": X, "y": y,
             "meta": meta, "num": num, "cat": cat, "origin_time": str(s["origin_time"])}

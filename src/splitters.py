@@ -23,13 +23,37 @@ def split_group_random(meta, group_col, test_size=0.2, seed=0):
     return train_idx, test_idx
 
 
+def _group_contiguous_order(decision_time, group_id):
+    """An ordering by decision_time in which rows sharing a group id are always
+    contiguous, including when two *different* groups are tied on decision time.
+
+    A plain `argsort(decision_time)` does not guarantee this: a stable sort merely
+    preserves each tied group's original storage order, so two different groups
+    tied on the same timestamp can end up interleaved (e.g. A, B, A, B) if their
+    rows were not already stored grouped together, and a cut landing inside that
+    interleaving would split group A's rows across train and test even though
+    adjacent positions never literally repeat a group id back-to-back -- the
+    failure mode an earlier, adjacency-only boundary check here did not catch.
+    Sorting by (decision_time, group_id) as a composite key removes the
+    ambiguity: within a decision-time tie, rows are grouped by id first, so every
+    group's rows are contiguous by construction, not by chance.
+    """
+    group_codes = np.unique(group_id, return_inverse=True)[1]
+    return np.lexsort((group_codes, decision_time))
+
+
 def split_chronological(meta, test_size=0.2):
-    order = np.argsort(meta["decision_time"].values)
+    group_id = meta["order_id"].values if "order_id" in meta.columns else np.arange(len(meta))
+    order = _group_contiguous_order(meta["decision_time"].values, group_id)
+    group_sorted = group_id[order]
     n = len(meta)
-    n_test = int(n * test_size)
-    test_pos = order[n - n_test:]
-    train_pos = order[: n - n_test]
+    n_test_raw = int(n * test_size)
+    test_start = _snap_forward_to_group_boundary(n - n_test_raw, group_sorted)
+    test_pos = order[test_start:]
+    train_pos = order[:test_start]
     cutoff = meta["decision_time"].values[test_pos].min()
+    assert len(np.intersect1d(group_id[train_pos], group_id[test_pos])) == 0, \
+        "split_chronological produced overlapping group ids between train and test"
     return train_pos, test_pos, cutoff
 
 
@@ -86,9 +110,10 @@ def rolling_origin_splits(meta, n_origins=6, min_train_frac=0.5, test_frac_per_o
     Returns a list of dicts with train_idx, test_idx, origin_time (start of the
     test window) and horizon_end (end of the test window).
     """
-    order = np.argsort(meta["decision_time"].values, kind="stable")
+    group_id = meta["order_id"].values if "order_id" in meta.columns else np.arange(len(meta))
+    order = _group_contiguous_order(meta["decision_time"].values, group_id)
     times_sorted = meta["decision_time"].values[order]
-    group_sorted = meta["order_id"].values[order] if "order_id" in meta.columns else order
+    group_sorted = group_id[order]
     n = len(order)
 
     min_train_n = int(n * min_train_frac)
@@ -106,6 +131,8 @@ def rolling_origin_splits(meta, n_origins=6, min_train_frac=0.5, test_frac_per_o
             break
         train_pos = order[:train_end]
         test_pos = order[test_start:test_end]
+        assert len(np.intersect1d(group_id[train_pos], group_id[test_pos])) == 0, \
+            f"rolling_origin_splits origin {i} produced overlapping group ids between train and test"
         splits.append({
             "origin_index": i,
             "train_idx": train_pos,

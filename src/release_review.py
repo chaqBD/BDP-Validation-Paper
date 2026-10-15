@@ -104,6 +104,25 @@ def automated_checklist_rule(auc, brier, cal_slope, X_train, X_test):
     return "PASS"
 
 
+def temporal_integrity_rule(time_train, cutoff):
+    """A minimal, identifier-free comparator: does any training row's own decision
+    time fall on or after the release cutoff (the start of the held-out scoring
+    window)? This needs no declared group identifier at all, only the decision-time
+    column every case already carries, and exists to establish what a basic
+    chronological-ordering check alone already buys a reviewer -- before crediting
+    the extended group-identifier check (`group_overlap_check`) with detection a
+    much simpler, identifier-free check would have caught regardless. A hard
+    temporal fact rather than a graduated risk, so it has no NEEDS_REVIEW tier:
+    a training row timestamped at or after the cutoff is never legitimate.
+    """
+    time_train = np.asarray(time_train)
+    violation = time_train >= np.datetime64(cutoff)
+    n_violations = int(violation.sum())
+    status = "BLOCKED" if n_violations > 0 else "PASS"
+    return {"check_name": "temporal_integrity", "status": status,
+            "n_violations": n_violations, "n_train": len(time_train)}
+
+
 def group_overlap_check(group_train, group_test, time_train=None, test_period_start=None):
     """The extended check this paper adds to the stock gate: explicit train/test
     overlap measured on a declared *group* identifier, not on feature-level row

@@ -2,37 +2,37 @@
   "gate_status": "BLOCKED",
   "task": "binary",
   "model_metric": "roc_auc",
-  "model_score": 0.6959,
-  "model_auc": 0.6959,
+  "model_score": 0.7033,
+  "model_auc": 0.7033,
   "n_flags": 4,
-  "total_duration_ms": 1330.11,
+  "total_duration_ms": 1368.65,
   "results_by_category": {
     "validation": [
       {
         "check_name": "target_leakage",
         "flag": "OK",
-        "detail": "no single feature approaches the model's own predictive power (0.392)",
+        "detail": "no single feature approaches the model's own predictive power (0.407)",
         "blocking": true,
         "metadata": {
-          "model_power": 0.3918,
+          "model_power": 0.4066,
           "threshold_ratio": 0.95,
           "min_power": 0.8,
           "n_features_scored": 16
         },
-        "duration_ms": 9.6
+        "duration_ms": 9.58
       },
       {
         "check_name": "split_overlap",
         "flag": "OK",
-        "detail": "5 duplicate row(s) within the validation set (0.1%, max 5%) \u2014 duplicates weight the same observation more than once in every metric",
+        "detail": "4 duplicate row(s) within the validation set (0.1%, max 5%) \u2014 duplicates weight the same observation more than once in every metric",
         "blocking": true,
         "metadata": {
           "check": "duplicates_within_validation",
-          "n_duplicates": 5,
-          "duplicate_fraction": 0.0013,
+          "n_duplicates": 4,
+          "duplicate_fraction": 0.001,
           "threshold": 0.05
         },
-        "duration_ms": 5.44
+        "duration_ms": 6.29
       },
       {
         "check_name": "split_overlap",
@@ -46,7 +46,7 @@
           "threshold": 0.01,
           "n_columns_compared": 16
         },
-        "duration_ms": 5.44
+        "duration_ms": 6.29
       },
       {
         "check_name": "validation_strategy",
@@ -80,30 +80,30 @@
       {
         "check_name": "feature_drift",
         "flag": "DRIFT_RISK",
-        "detail": "purchase_month: standardised mean shift 0.337 between training and validation (max 0.25) \u2014 the model is being graded on a different population from the one it was fitted to",
+        "detail": "purchase_month: standardised mean shift 0.305 between training and validation (max 0.25) \u2014 the model is being graded on a different population from the one it was fitted to",
         "blocking": false,
         "metadata": {
           "feature": "purchase_month",
-          "shift": 0.3369,
+          "shift": 0.3048,
           "threshold": 0.25,
           "measure": "standardised mean shift",
           "n_features_scored": 16
         },
-        "duration_ms": 4.35
+        "duration_ms": 5.0
       },
       {
         "check_name": "feature_drift",
         "flag": "DRIFT_RISK",
-        "detail": "main_category: total variation distance 0.156 between training and validation (max 0.15) \u2014 the model is being graded on a different population from the one it was fitted to",
+        "detail": "main_category: total variation distance 0.162 between training and validation (max 0.15) \u2014 the model is being graded on a different population from the one it was fitted to",
         "blocking": false,
         "metadata": {
           "feature": "main_category",
-          "shift": 0.1558,
+          "shift": 0.1619,
           "threshold": 0.15,
           "measure": "total variation distance",
           "n_features_scored": 16
         },
-        "duration_ms": 4.35
+        "duration_ms": 5.0
       }
     ],
     "fairness": [
@@ -192,50 +192,50 @@
       {
         "check_name": "performance_thresholds",
         "flag": "OK",
-        "detail": "roc_auc=0.6959 [0.664, 0.726] (min 0.6) \u2014 the whole interval sits above 0.600",
+        "detail": "roc_auc=0.7033 [0.669, 0.737] (min 0.6) \u2014 the whole interval sits above 0.600",
         "blocking": true,
         "metadata": {
           "metric_kind": "score",
           "metric": "roc_auc",
-          "value": 0.6959,
+          "value": 0.7033,
           "threshold": 0.6,
           "threshold_field": "min_score",
           "greater_is_better": true,
           "metric_is_fallback": false,
           "exposure_weighted": false,
           "on_uncertain": "review",
-          "point": 0.6959,
-          "ci_low": 0.6645,
-          "ci_high": 0.7262,
+          "point": 0.7033,
+          "ci_low": 0.6694,
+          "ci_high": 0.7367,
           "ci_level": 0.95,
           "bootstrap_samples": 1000
         },
-        "duration_ms": 1171.42
+        "duration_ms": 1209.37
       },
       {
         "check_name": "calibration",
         "flag": "OK",
-        "detail": "expected calibration error=0.008 [0.004, 0.015] at 95% (max 0.1); reliability=0.0004, resolution=0.0003 \u2014 the whole interval sits below 0.100",
+        "detail": "expected calibration error=0.011 [0.005, 0.018] at 95% (max 0.1); reliability=0.0002, resolution=0.0003 \u2014 the whole interval sits below 0.100",
         "blocking": true,
         "metadata": {
-          "ece": 0.00812,
+          "ece": 0.01062,
           "threshold": 0.1,
           "n_bins": 10,
           "strategy": "uniform",
-          "brier": 0.05031,
-          "binned_brier": 0.05118,
-          "reliability": 0.00041,
-          "resolution": 0.00032,
-          "uncertainty": 0.05108,
-          "base_rate": 0.054,
+          "brier": 0.0498,
+          "binned_brier": 0.05071,
+          "reliability": 0.00018,
+          "resolution": 0.00033,
+          "uncertainty": 0.05086,
+          "base_rate": 0.05375,
           "on_uncertain": "review",
-          "point": 0.0081,
-          "ci_low": 0.0041,
-          "ci_high": 0.0149,
+          "point": 0.0106,
+          "ci_low": 0.005,
+          "ci_high": 0.0184,
           "ci_level": 0.95,
           "bootstrap_samples": 1000
         },
-        "duration_ms": 124.45
+        "duration_ms": 122.37
       },
       {
         "check_name": "actual_vs_expected",
@@ -331,7 +331,7 @@
         "detail": "check raised an exception: ValueError(\"columns are missing: {'promised_days'}\")",
         "blocking": true,
         "metadata": {},
-        "duration_ms": 2.32
+        "duration_ms": 2.28
       },
       {
         "check_name": "pii_leakage",
@@ -339,7 +339,7 @@
         "detail": "no PII patterns detected",
         "blocking": true,
         "metadata": {},
-        "duration_ms": 2.56
+        "duration_ms": 2.31
       },
       {
         "check_name": "prompt_injection",
@@ -357,7 +357,7 @@
         "metadata": {
           "n_strings_scanned": 26
         },
-        "duration_ms": 0.1
+        "duration_ms": 0.08
       }
     ]
   }

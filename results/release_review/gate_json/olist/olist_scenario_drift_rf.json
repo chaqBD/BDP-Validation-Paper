@@ -1,25 +1,25 @@
 {
-  "gate_status": "NEEDS_REVIEW",
+  "gate_status": "BLOCKED",
   "task": "binary",
   "model_metric": "roc_auc",
-  "model_score": 0.7154,
-  "model_auc": 0.7154,
-  "n_flags": 3,
-  "total_duration_ms": 1564.6,
+  "model_score": 0.3845,
+  "model_auc": 0.3845,
+  "n_flags": 4,
+  "total_duration_ms": 2670.91,
   "results_by_category": {
     "validation": [
       {
         "check_name": "target_leakage",
         "flag": "OK",
-        "detail": "no single feature approaches the model's own predictive power (0.431)",
+        "detail": "no single feature approaches the model's own predictive power (0.231)",
         "blocking": true,
         "metadata": {
-          "model_power": 0.4309,
+          "model_power": 0.231,
           "threshold_ratio": 0.95,
           "min_power": 0.8,
           "n_features_scored": 17
         },
-        "duration_ms": 10.85
+        "duration_ms": 21.26
       },
       {
         "check_name": "split_overlap",
@@ -32,7 +32,7 @@
           "duplicate_fraction": 0.0027,
           "threshold": 0.05
         },
-        "duration_ms": 5.91
+        "duration_ms": 11.91
       },
       {
         "check_name": "split_overlap",
@@ -46,7 +46,7 @@
           "threshold": 0.01,
           "n_columns_compared": 17
         },
-        "duration_ms": 5.91
+        "duration_ms": 11.91
       },
       {
         "check_name": "validation_strategy",
@@ -73,49 +73,49 @@
           "expected_order": null,
           "actual_order": null
         },
-        "duration_ms": 0.02
+        "duration_ms": 0.03
       },
       {
         "check_name": "feature_drift",
         "flag": "DRIFT_RISK",
-        "detail": "promised_days: standardised mean shift 1.143 between training and validation (max 0.25) \u2014 the model is being graded on a different population from the one it was fitted to",
+        "detail": "promised_days: standardised mean shift 1.165 between training and validation (max 0.25) \u2014 the model is being graded on a different population from the one it was fitted to",
         "blocking": false,
         "metadata": {
           "feature": "promised_days",
-          "shift": 1.143,
+          "shift": 1.165,
           "threshold": 0.25,
           "measure": "standardised mean shift",
           "n_features_scored": 17
         },
-        "duration_ms": 5.05
+        "duration_ms": 8.04
       },
       {
         "check_name": "feature_drift",
         "flag": "DRIFT_RISK",
-        "detail": "purchase_month: standardised mean shift 0.643 between training and validation (max 0.25) \u2014 the model is being graded on a different population from the one it was fitted to",
+        "detail": "purchase_month: standardised mean shift 0.657 between training and validation (max 0.25) \u2014 the model is being graded on a different population from the one it was fitted to",
         "blocking": false,
         "metadata": {
           "feature": "purchase_month",
-          "shift": 0.6434,
+          "shift": 0.6573,
           "threshold": 0.25,
           "measure": "standardised mean shift",
           "n_features_scored": 17
         },
-        "duration_ms": 5.05
+        "duration_ms": 8.05
       },
       {
         "check_name": "feature_drift",
         "flag": "DRIFT_RISK",
-        "detail": "main_category: total variation distance 0.168 between training and validation (max 0.15) \u2014 the model is being graded on a different population from the one it was fitted to",
+        "detail": "main_category: total variation distance 0.180 between training and validation (max 0.15) \u2014 the model is being graded on a different population from the one it was fitted to",
         "blocking": false,
         "metadata": {
           "feature": "main_category",
-          "shift": 0.1685,
+          "shift": 0.1804,
           "threshold": 0.15,
           "measure": "total variation distance",
           "n_features_scored": 17
         },
-        "duration_ms": 5.05
+        "duration_ms": 8.05
       }
     ],
     "fairness": [
@@ -125,7 +125,7 @@
         "detail": "no protected_df supplied",
         "blocking": false,
         "metadata": {},
-        "duration_ms": 0.0
+        "duration_ms": 0.14
       },
       {
         "check_name": "disparate_impact",
@@ -203,51 +203,51 @@
     "performance": [
       {
         "check_name": "performance_thresholds",
-        "flag": "OK",
-        "detail": "roc_auc=0.7154 [0.684, 0.743] (min 0.6) \u2014 the whole interval sits above 0.600",
+        "flag": "PERFORMANCE_RISK",
+        "detail": "roc_auc=0.3845 [0.355, 0.413] (min 0.6) \u2014 the whole 95% interval sits below 0.600",
         "blocking": true,
         "metadata": {
           "metric_kind": "score",
           "metric": "roc_auc",
-          "value": 0.7154,
+          "value": 0.3845,
           "threshold": 0.6,
           "threshold_field": "min_score",
           "greater_is_better": true,
           "metric_is_fallback": false,
           "exposure_weighted": false,
           "on_uncertain": "review",
-          "point": 0.7154,
-          "ci_low": 0.6845,
-          "ci_high": 0.7427,
+          "point": 0.3845,
+          "ci_low": 0.3555,
+          "ci_high": 0.4126,
           "ci_level": 0.95,
           "bootstrap_samples": 1000
         },
-        "duration_ms": 1108.82
+        "duration_ms": 1896.46
       },
       {
         "check_name": "calibration",
         "flag": "OK",
-        "detail": "expected calibration error=0.035 [0.027, 0.044] at 95% (max 0.1); reliability=0.0030, resolution=0.0053 \u2014 the whole interval sits below 0.100",
+        "detail": "expected calibration error=0.040 [0.031, 0.049] at 95% (max 0.1); reliability=0.0016, resolution=0.0001 \u2014 the whole interval sits below 0.100",
         "blocking": true,
         "metadata": {
-          "ece": 0.03547,
+          "ece": 0.04026,
           "threshold": 0.1,
           "n_bins": 10,
           "strategy": "uniform",
-          "brier": 0.08778,
-          "binned_brier": 0.0885,
-          "reliability": 0.00301,
-          "resolution": 0.00531,
-          "uncertainty": 0.0908,
-          "base_rate": 0.101,
+          "brier": 0.09335,
+          "binned_brier": 0.09216,
+          "reliability": 0.00163,
+          "resolution": 7e-05,
+          "uncertainty": 0.0906,
+          "base_rate": 0.10075,
           "on_uncertain": "review",
-          "point": 0.0355,
-          "ci_low": 0.0265,
-          "ci_high": 0.0442,
+          "point": 0.0403,
+          "ci_low": 0.0307,
+          "ci_high": 0.0491,
           "ci_level": 0.95,
           "bootstrap_samples": 1000
         },
-        "duration_ms": 123.66
+        "duration_ms": 196.84
       },
       {
         "check_name": "actual_vs_expected",
@@ -295,7 +295,7 @@
         "metadata": {
           "check": "model_card.training_data_source"
         },
-        "duration_ms": 0.01
+        "duration_ms": 0.02
       },
       {
         "check_name": "compliance_mapping",
@@ -306,7 +306,7 @@
           "check": "dpia_trigger",
           "is_high_risk": false
         },
-        "duration_ms": 0.01
+        "duration_ms": 0.02
       },
       {
         "check_name": "compliance_mapping",
@@ -317,7 +317,7 @@
           "check": "explainability_requirement",
           "influences_person": false
         },
-        "duration_ms": 0.01
+        "duration_ms": 0.02
       },
       {
         "check_name": "monotonicity",
@@ -348,7 +348,7 @@
           "method": "random",
           "task": "binary"
         },
-        "duration_ms": 291.75
+        "duration_ms": 504.19
       },
       {
         "check_name": "pii_leakage",
@@ -356,7 +356,7 @@
         "detail": "no PII patterns detected",
         "blocking": true,
         "metadata": {},
-        "duration_ms": 2.39
+        "duration_ms": 3.74
       },
       {
         "check_name": "prompt_injection",
@@ -364,7 +364,7 @@
         "detail": "no generative component supplied \u2014 set context.generate_fn for the direct surface (the payload arrives as the user turn) or context.inject_fn for the indirect one (the payload arrives where your pipeline puts retrieved content). The second is the surface that matters for a regulated deployment",
         "blocking": true,
         "metadata": {},
-        "duration_ms": 0.0
+        "duration_ms": 0.01
       },
       {
         "check_name": "report_injection",
@@ -374,7 +374,7 @@
         "metadata": {
           "n_strings_scanned": 27
         },
-        "duration_ms": 0.08
+        "duration_ms": 0.19
       }
     ]
   }

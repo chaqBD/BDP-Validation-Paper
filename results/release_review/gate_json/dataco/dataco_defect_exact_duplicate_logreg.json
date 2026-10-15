@@ -2,24 +2,24 @@
   "gate_status": "NEEDS_REVIEW",
   "task": "binary",
   "model_metric": "roc_auc",
-  "model_score": 0.7579,
-  "model_auc": 0.7579,
+  "model_score": 0.7555,
+  "model_auc": 0.7555,
   "n_flags": 4,
-  "total_duration_ms": 1477.83,
+  "total_duration_ms": 2097.55,
   "results_by_category": {
     "validation": [
       {
         "check_name": "target_leakage",
         "flag": "OK",
-        "detail": "no single feature approaches the model's own predictive power (0.516)",
+        "detail": "no single feature approaches the model's own predictive power (0.511)",
         "blocking": true,
         "metadata": {
-          "model_power": 0.5159,
+          "model_power": 0.5109,
           "threshold_ratio": 0.95,
           "min_power": 0.8,
           "n_features_scored": 23
         },
-        "duration_ms": 13.0
+        "duration_ms": 21.16
       },
       {
         "check_name": "split_overlap",
@@ -32,21 +32,21 @@
           "duplicate_fraction": 0.0,
           "threshold": 0.05
         },
-        "duration_ms": 11.2
+        "duration_ms": 16.22
       },
       {
         "check_name": "split_overlap",
         "flag": "OK",
-        "detail": "18 of 4000 validation rows (0.4%, max 1%) also appear in X_train, compared over 23 shared column(s)",
+        "detail": "19 of 4000 validation rows (0.5%, max 1%) also appear in X_train, compared over 23 shared column(s)",
         "blocking": true,
         "metadata": {
           "check": "overlap_with_training",
-          "n_overlapping": 18,
-          "overlap_fraction": 0.0045,
+          "n_overlapping": 19,
+          "overlap_fraction": 0.0047,
           "threshold": 0.01,
           "n_columns_compared": 23
         },
-        "duration_ms": 11.2
+        "duration_ms": 16.22
       },
       {
         "check_name": "validation_strategy",
@@ -73,63 +73,63 @@
           "expected_order": null,
           "actual_order": null
         },
-        "duration_ms": 0.02
+        "duration_ms": 0.03
       },
       {
         "check_name": "feature_drift",
         "flag": "DRIFT_RISK",
-        "detail": "Order State: total variation distance 0.555 between training and validation (max 0.15) \u2014 the model is being graded on a different population from the one it was fitted to",
+        "detail": "Order State: total variation distance 0.566 between training and validation (max 0.15) \u2014 the model is being graded on a different population from the one it was fitted to",
         "blocking": false,
         "metadata": {
           "feature": "Order State",
-          "shift": 0.5547,
+          "shift": 0.5657,
           "threshold": 0.15,
           "measure": "total variation distance",
           "n_features_scored": 23
         },
-        "duration_ms": 15.05
+        "duration_ms": 23.14
       },
       {
         "check_name": "feature_drift",
         "flag": "DRIFT_RISK",
-        "detail": "Order Country: total variation distance 0.533 between training and validation (max 0.15) \u2014 the model is being graded on a different population from the one it was fitted to",
+        "detail": "Order Country: total variation distance 0.543 between training and validation (max 0.15) \u2014 the model is being graded on a different population from the one it was fitted to",
         "blocking": false,
         "metadata": {
           "feature": "Order Country",
-          "shift": 0.5335,
+          "shift": 0.5435,
           "threshold": 0.15,
           "measure": "total variation distance",
           "n_features_scored": 23
         },
-        "duration_ms": 15.05
+        "duration_ms": 23.14
       },
       {
         "check_name": "feature_drift",
         "flag": "DRIFT_RISK",
-        "detail": "Order Region: total variation distance 0.529 between training and validation (max 0.15) \u2014 the model is being graded on a different population from the one it was fitted to",
+        "detail": "Order Region: total variation distance 0.539 between training and validation (max 0.15) \u2014 the model is being graded on a different population from the one it was fitted to",
         "blocking": false,
         "metadata": {
           "feature": "Order Region",
-          "shift": 0.5288,
+          "shift": 0.539,
           "threshold": 0.15,
           "measure": "total variation distance",
           "n_features_scored": 23
         },
-        "duration_ms": 15.05
+        "duration_ms": 23.14
       },
       {
         "check_name": "feature_drift",
         "flag": "DRIFT_RISK",
-        "detail": "Market: total variation distance 0.500 between training and validation (max 0.15) \u2014 the model is being graded on a different population from the one it was fitted to",
+        "detail": "Market: total variation distance 0.510 between training and validation (max 0.15) \u2014 the model is being graded on a different population from the one it was fitted to",
         "blocking": false,
         "metadata": {
           "feature": "Market",
-          "shift": 0.5002,
+          "shift": 0.5105,
           "threshold": 0.15,
           "measure": "total variation distance",
           "n_features_scored": 23
         },
-        "duration_ms": 15.05
+        "duration_ms": 23.14
       }
     ],
     "fairness": [
@@ -218,50 +218,50 @@
       {
         "check_name": "performance_thresholds",
         "flag": "OK",
-        "detail": "roc_auc=0.7579 [0.744, 0.772] (min 0.6) \u2014 the whole interval sits above 0.600",
+        "detail": "roc_auc=0.7555 [0.741, 0.770] (min 0.6) \u2014 the whole interval sits above 0.600",
         "blocking": true,
         "metadata": {
           "metric_kind": "score",
           "metric": "roc_auc",
-          "value": 0.7579,
+          "value": 0.7555,
           "threshold": 0.6,
           "threshold_field": "min_score",
           "greater_is_better": true,
           "metric_is_fallback": false,
           "exposure_weighted": false,
           "on_uncertain": "review",
-          "point": 0.7579,
-          "ci_low": 0.7438,
-          "ci_high": 0.7722,
+          "point": 0.7555,
+          "ci_low": 0.7405,
+          "ci_high": 0.7703,
           "ci_level": 0.95,
           "bootstrap_samples": 1000
         },
-        "duration_ms": 1162.95
+        "duration_ms": 1663.08
       },
       {
         "check_name": "calibration",
         "flag": "OK",
-        "detail": "expected calibration error=0.011 [0.008, 0.027] at 95% (max 0.1); reliability=0.0004, resolution=0.0586 \u2014 the whole interval sits below 0.100",
+        "detail": "expected calibration error=0.016 [0.008, 0.032] at 95% (max 0.1); reliability=0.0005, resolution=0.0583 \u2014 the whole interval sits below 0.100",
         "blocking": true,
         "metadata": {
-          "ece": 0.01085,
+          "ece": 0.01585,
           "threshold": 0.1,
           "n_bins": 10,
           "strategy": "uniform",
-          "brier": 0.18654,
-          "binned_brier": 0.18686,
-          "reliability": 0.00037,
-          "resolution": 0.05858,
+          "brier": 0.18674,
+          "binned_brier": 0.18722,
+          "reliability": 0.00047,
+          "resolution": 0.05832,
           "uncertainty": 0.24506,
           "base_rate": 0.57025,
           "on_uncertain": "review",
-          "point": 0.0109,
-          "ci_low": 0.008,
-          "ci_high": 0.0265,
+          "point": 0.0159,
+          "ci_low": 0.0084,
+          "ci_high": 0.0317,
           "ci_level": 0.95,
           "bootstrap_samples": 1000
         },
-        "duration_ms": 132.68
+        "duration_ms": 191.74
       },
       {
         "check_name": "actual_vs_expected",
@@ -299,7 +299,7 @@
         "metadata": {
           "check": "model_card.data_minimization_justification"
         },
-        "duration_ms": 0.01
+        "duration_ms": 0.02
       },
       {
         "check_name": "compliance_mapping",
@@ -309,7 +309,7 @@
         "metadata": {
           "check": "model_card.training_data_source"
         },
-        "duration_ms": 0.01
+        "duration_ms": 0.02
       },
       {
         "check_name": "compliance_mapping",
@@ -320,7 +320,7 @@
           "check": "dpia_trigger",
           "is_high_risk": false
         },
-        "duration_ms": 0.01
+        "duration_ms": 0.02
       },
       {
         "check_name": "compliance_mapping",
@@ -331,7 +331,7 @@
           "check": "explainability_requirement",
           "influences_person": false
         },
-        "duration_ms": 0.01
+        "duration_ms": 0.02
       },
       {
         "check_name": "monotonicity",
@@ -354,15 +354,15 @@
       {
         "check_name": "adversarial_robustness",
         "flag": "OK",
-        "detail": "flip rate under random perturbation=0.0000 (max 0.25)",
+        "detail": "flip rate under random perturbation=0.0100 (max 0.25)",
         "blocking": true,
         "metadata": {
-          "flip_rate": 0.0,
+          "flip_rate": 0.01,
           "threshold": 0.25,
           "method": "random",
           "task": "binary"
         },
-        "duration_ms": 78.95
+        "duration_ms": 84.96
       },
       {
         "check_name": "pii_leakage",
@@ -370,7 +370,7 @@
         "detail": "no PII patterns detected",
         "blocking": true,
         "metadata": {},
-        "duration_ms": 7.47
+        "duration_ms": 11.35
       },
       {
         "check_name": "prompt_injection",
@@ -388,7 +388,7 @@
         "metadata": {
           "n_strings_scanned": 33
         },
-        "duration_ms": 0.1
+        "duration_ms": 0.13
       }
     ]
   }

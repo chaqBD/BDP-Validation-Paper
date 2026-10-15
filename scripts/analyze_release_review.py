@@ -3,6 +3,21 @@ and the results report. Every table either document cites is copied verbatim fro
 this script's output, never hand-computed separately. Reports PASS, NEEDS_REVIEW
 and BLOCKED as three distinct rates throughout; never collapses NEEDS_REVIEW and
 BLOCKED into one "flagged" number without also reporting them separately.
+
+Three outcomes are kept analytically distinct throughout, never conflated into a
+single pass/fail judgement:
+  (a) ground truth -- whether the case actually has an injected defect
+      (`has_defect`, `defect_type`);
+  (b) check-specific detection -- whether the one named check relevant to that
+      defect type fired (Section 2, the PRIMARY detection endpoint, computed
+      identically for every model including Olist random forest); and
+  (c) independent release suitability -- whether the model's own metrics,
+      judged purely on frozen AUC/Brier/calibration thresholds with no schema,
+      overlap or group information (`verdict_metrics_only`), would itself call
+      the case unreleasable. Section 4 uses (c) to split every non-defect
+      case's flags into "defensible" (independent criteria agree) versus
+      "methodology-specific" (this approach flagged something the independent
+      criteria do not corroborate).
 """
 import json
 import sys
@@ -19,13 +34,30 @@ from src.config import RESULTS_DIR
 
 OUT_DIR = RESULTS_DIR / "release_review"
 APPROACHES = ["verdict_auroc_only", "verdict_metrics_only", "verdict_checklist",
-              "verdict_stock_gate", "verdict_extended_gate"]
+              "verdict_stock_gate", "verdict_extended_gate", "verdict_temporal_integrity"]
 APPROACH_LABELS = {
     "verdict_auroc_only": "AUROC-only",
     "verdict_metrics_only": "Metrics-only",
     "verdict_checklist": "Automated checklist",
     "verdict_stock_gate": "Stock gate",
     "verdict_extended_gate": "Extended gate",
+    "verdict_temporal_integrity": "Temporal integrity",
+}
+
+# The specific, named check whose activation is the ground-truth-relevant
+# evidence for each defect type -- used as the PRIMARY detection endpoint
+# (Section 2) rather than the aggregate gate verdict, because it is computed
+# the same way for every model family including Olist random forest: it asks
+# whether the one check a reviewer would actually look to for that defect
+# fired, not whether the whole gate happened to end up BLOCKED, which for RF is
+# confounded by a pre-existing baseline AUC problem the companion study
+# documents (`KNOWN_BASELINE_ISSUE`) and unrelated to any defect under test
+# here.
+DEFECT_CHECK_MAP = {
+    "leaky_feature": [("stock_gate_json", "target_leakage")],
+    "exact_duplicate": [("stock_gate_json", "split_overlap")],
+    "invalid_schema": [("stock_gate_json", "feature_contract")],
+    "group_overlap": [("column", "group_overlap_check_status"), ("column", "verdict_temporal_integrity")],
 }
 
 
@@ -73,10 +105,55 @@ if __name__ == "__main__":
     verdict_breakdown.to_csv(OUT_DIR / "verdict_breakdown.csv", index=False)
     print(verdict_breakdown.to_string())
 
-    # 2. Detection (BLOCKED rate) and review-routing (NEEDS_REVIEW rate) on defect
-    #    cases, separately, by defect type x approach.
+    # 2. PRIMARY detection endpoint: did the one named check relevant to this
+    #    specific defect type fire, computed identically for every model family,
+    #    including Olist random forest (known_baseline_issue rows are flagged in
+    #    their own column rather than excluded, since this endpoint checks a
+    #    named check's own flag, not the aggregate gate verdict RF's pre-existing
+    #    baseline problem would otherwise confound).
+    print("=" * 100)
+    print("2. PRIMARY: defect-specific check activation (all models, incl. known-baseline-issue rows)")
+    print("=" * 100)
+    rows2p = []
+    for _, r in df[df["has_defect"]].iterrows():
+        checks = DEFECT_CHECK_MAP.get(r["defect_type"], [])
+        fired_any = False
+        fired_detail = []
+        for kind, name in checks:
+            if kind == "stock_gate_json":
+                gj = load_gate_json(r["dataset"], r["case"], r["model"])
+                if gj is None:
+                    continue
+                for cat, check_name, flag in per_check_flags(gj):
+                    if check_name == name and flag not in ("OK", "NOT_APPLICABLE"):
+                        fired_any = True
+                        fired_detail.append(f"{name}:{flag}")
+            elif kind == "column":
+                val = r.get(name)
+                if val in ("BLOCKED", "NEEDS_REVIEW"):
+                    fired_any = True
+                    fired_detail.append(f"{name}:{val}")
+        rows2p.append({
+            "dataset": r["dataset"], "defect_type": r["defect_type"], "model": r["model"],
+            "known_baseline_issue": r["known_baseline_issue"],
+            "relevant_check_fired": fired_any, "detail": ";".join(fired_detail),
+        })
+    primary_detection = pd.DataFrame(rows2p)
+    primary_detection.to_csv(OUT_DIR / "primary_defect_check_detection.csv", index=False)
+    print(primary_detection.pivot_table(index=["dataset", "defect_type"], columns="model",
+                                         values="relevant_check_fired", aggfunc="mean").to_string())
+    print("\n(by known_baseline_issue status, defect-specific check only -- not the aggregate gate verdict)")
+    print(primary_detection.groupby(["dataset", "defect_type", "known_baseline_issue"])[
+        "relevant_check_fired"].mean().to_string())
+
+    # 3. Detection (BLOCKED rate) and review-routing (NEEDS_REVIEW rate) on defect
+    #    cases, separately, by defect type x approach -- the aggregate-verdict
+    #    view (secondary to Section 2's defect-specific check activation),
+    #    known-baseline-issue rows excluded since the aggregate verdict on those
+    #    rows is confounded by a pre-existing baseline problem, not the defect
+    #    under test (Section 4 reports those rows on their own).
     print("\n" + "=" * 100)
-    print("2. Detection: BLOCKED rate and NEEDS_REVIEW rate on defect cases, by defect type")
+    print("3. Secondary: aggregate-verdict detection (BLOCKED/NEEDS_REVIEW rate) on defect cases, by defect type")
     print("=" * 100)
     rows2 = []
     for dataset in df_clean_models.dataset.unique():
@@ -99,40 +176,58 @@ if __name__ == "__main__":
     print(detection.pivot_table(index=["dataset", "defect_type"], columns="approach",
                                  values="pass_rate_unsupported_approval").to_string())
 
-    # 3. False alarms on clean/scenario cases (which are NOT defects), by case x approach.
+    # 4. False alarms on clean/scenario cases (which are NOT defects), by case x
+    #    approach -- split into three outcomes, not two: whether the row is
+    #    flagged at all (blocked_rate/needs_review_rate, as before), AND,
+    #    among flagged rows, whether an INDEPENDENT release-criteria check
+    #    (the metrics-only rule's own frozen AUC/Brier/calibration thresholds,
+    #    which take no schema, overlap or group information as input) also
+    #    judges the case unreleasable. A flag with no independent-criteria
+    #    support is a methodology-specific block: the approach reacted to
+    #    something -- drift, a row-overlap check, a group check -- that did not
+    #    itself show up as a performance problem by the independent criteria.
     print("\n" + "=" * 100)
-    print("3. False alarms: BLOCKED rate and NEEDS_REVIEW rate on clean/scenario cases")
+    print("4. False alarms: flag rate on clean/scenario cases, split by independent release criteria")
     print("=" * 100)
     rows3 = []
     for dataset in df_clean_models.dataset.unique():
         d = df_clean_models[(df_clean_models.dataset == dataset) & (~df_clean_models.has_defect)]
         for case in d.case.unique():
             dd = d[d.case == case]
+            release_criteria_fails = dd["verdict_metrics_only"].isin(["BLOCKED", "NEEDS_REVIEW"])
             for appr in APPROACHES:
+                flagged = dd[appr].isin(["BLOCKED", "NEEDS_REVIEW"])
                 rows3.append({
                     "dataset": dataset, "case": case, "approach": APPROACH_LABELS[appr],
                     "n_cases": len(dd),
                     "blocked_rate": rate(dd[appr], ["BLOCKED"]),
                     "needs_review_rate": rate(dd[appr], ["NEEDS_REVIEW"]),
+                    "flagged_rate": flagged.mean() if len(dd) else np.nan,
+                    "defensible_flag_rate": (flagged & release_criteria_fails).mean() if len(dd) else np.nan,
+                    "methodology_specific_flag_rate": (flagged & ~release_criteria_fails).mean() if len(dd) else np.nan,
                 })
     false_alarms = pd.DataFrame(rows3)
     false_alarms.to_csv(OUT_DIR / "flagrate_by_nondefect_case.csv", index=False)
     print(false_alarms.pivot_table(index=["dataset", "case"], columns="approach",
                                     values="blocked_rate").to_string())
+    print("\n(methodology-specific flag rate = flagged by this approach but NOT by the independent "
+          "metrics-only release criteria)")
+    print(false_alarms.pivot_table(index=["dataset", "case"], columns="approach",
+                                    values="methodology_specific_flag_rate").to_string())
 
-    # 4. Known-baseline-issue rows, reported on their own, every approach's verdict,
+    # 5. Known-baseline-issue rows, reported on their own, every approach's verdict,
     #    not counted anywhere above.
     print("\n" + "=" * 100)
-    print("4. Known-baseline-issue rows (Olist random forest) -- defensible blocks, reported separately")
+    print("5. Known-baseline-issue rows (Olist random forest) -- defensible blocks, reported separately")
     print("=" * 100)
     kb = df[df["known_baseline_issue"]]
     print(kb[["dataset", "case", "model", "auc", "cal_slope"] + APPROACHES].to_string())
 
-    # 5. Does the extension change the actual release action, or only add diagnostic
+    # 6. Does the extension change the actual release action, or only add diagnostic
     #    detail? Compare stock vs extended verdict per row; report only the rows
     #    where the verdict category actually differs.
     print("\n" + "=" * 100)
-    print("5. Stock vs extended gate: rows where the verdict itself changes")
+    print("6. Stock vs extended gate: rows where the verdict itself changes")
     print("=" * 100)
     order = {"PASS": 0, "NEEDS_REVIEW": 1, "BLOCKED": 2}
     df["stock_rank"] = df["verdict_stock_gate"].map(order)
@@ -143,10 +238,10 @@ if __name__ == "__main__":
     changed.to_csv(OUT_DIR / "extension_verdict_changes.csv", index=False)
     print(changed.to_string() if len(changed) else "(no rows where the extended verdict differs from stock)")
 
-    # 6. Review burden (NEEDS_REVIEW + BLOCKED rate) across the whole battery,
+    # 7. Review burden (NEEDS_REVIEW + BLOCKED rate) across the whole battery,
     #    known-baseline-issue rows excluded, reported per approach.
     print("\n" + "=" * 100)
-    print("6. Review burden (NEEDS_REVIEW or BLOCKED), whole battery, by approach")
+    print("7. Review burden (NEEDS_REVIEW or BLOCKED), whole battery, by approach")
     print("=" * 100)
     for appr in APPROACHES:
         print(f"  {APPROACH_LABELS[appr]:22s} "
@@ -154,17 +249,17 @@ if __name__ == "__main__":
               f"NEEDS_REVIEW={rate(df_clean_models[appr], ['NEEDS_REVIEW']):.2%}  "
               f"BLOCKED={rate(df_clean_models[appr], ['BLOCKED']):.2%}")
 
-    # 7. Cost
+    # 8. Cost
     print("\n" + "=" * 100)
-    print("7. Cost (mean seconds per case)")
+    print("8. Cost (mean seconds per case)")
     print("=" * 100)
     for col in ["fit_time_s", "time_auroc_only_s", "time_metrics_only_s", "time_checklist_s",
-                "time_stock_gate_s", "time_extended_gate_s"]:
+                "time_stock_gate_s", "time_extended_gate_s", "time_temporal_integrity_s"]:
         print(f"  {col:22s} mean={df[col].mean():.4f}  max={df[col].max():.4f}")
 
-    # 8. Check coverage (skipped checks), from the saved gate JSON.
+    # 9. Check coverage (skipped checks), from the saved gate JSON.
     print("\n" + "=" * 100)
-    print("8. Check coverage (stock gate)")
+    print("9. Check coverage (stock gate)")
     print("=" * 100)
     rows8 = []
     for _, r in df.iterrows():
@@ -185,12 +280,14 @@ if __name__ == "__main__":
     print(f"\n  overall mean n_checks_total={coverage.n_checks_total.mean():.1f}, "
           f"mean skip_rate={coverage.skip_rate.mean():.3f}")
 
-    # 9. Which individual stock-gate check fired on which defect type.
+    # 10. Supplementary: every individual stock-gate check that fired on every
+    #     defect case, all models included (diagnostic detail; Section 2's
+    #     defect-specific check activation is the primary detection endpoint).
     print("\n" + "=" * 100)
-    print("9. Which individual stock-gate check fired on which defect type")
+    print("10. Supplementary: every individual stock-gate check fired on each defect type, all models")
     print("=" * 100)
     rows9 = []
-    for _, r in df_clean_models.iterrows():
+    for _, r in df.iterrows():
         if not r["has_defect"]:
             continue
         gj = load_gate_json(r["dataset"], r["case"], r["model"])
@@ -204,3 +301,27 @@ if __name__ == "__main__":
     fired.to_csv(OUT_DIR / "checks_fired_on_defects.csv", index=False)
     if len(fired):
         print(fired.groupby(["dataset", "defect_type", "check_name"]).size().to_string())
+
+    # 11. Held-out evaluation summary (run_heldout_evaluation.py): severity/seed
+    #     sweep on exact-duplicate, and false-positive rate across every
+    #     rolling-origin period not used by the two hand-picked scenario cases.
+    print("\n" + "=" * 100)
+    print("11. Held-out evaluation: severity/seed sweep + genuinely held-out periods")
+    print("=" * 100)
+    sev_path = OUT_DIR / "heldout_severity_sweep.csv"
+    per_path = OUT_DIR / "heldout_period_sweep.csv"
+    if sev_path.exists() and per_path.exists():
+        sev = pd.read_csv(sev_path)
+        per = pd.read_csv(per_path)
+        heldout_approaches = ["verdict_checklist", "verdict_stock_gate",
+                               "verdict_extended_gate", "verdict_temporal_integrity"]
+        for appr in heldout_approaches:
+            sev[f"{appr}_detected"] = sev[appr].isin(["BLOCKED", "NEEDS_REVIEW"])
+            per[f"{appr}_flagged"] = per[appr].isin(["BLOCKED", "NEEDS_REVIEW"])
+        print("Detection rate by severity (exact-duplicate, gbm, 3 seeds each):")
+        print(sev.groupby(["dataset", "severity_frac"])[
+            [f"{a}_detected" for a in heldout_approaches]].mean().to_string())
+        print("\nFalse-positive rate across genuinely held-out legitimate periods (gbm):")
+        print(per.groupby("dataset")[[f"{a}_flagged" for a in heldout_approaches]].mean().to_string())
+    else:
+        print("(run scripts/run_heldout_evaluation.py first)")

@@ -1,9 +1,9 @@
 """Paper B main battery: for each dataset, build the clean reference, four defect
 cases and two scenario cases; for each, fit three frozen model families; score with
-five comparator approaches (AUROC-only, metrics-only, automated checklist, stock
-gate, extended gate); save one frozen results table with ground-truth labels and
-every approach's verdict (PASS / NEEDS_REVIEW / BLOCKED kept separate throughout,
-never collapsed inside this script).
+six comparator approaches (AUROC-only, metrics-only, automated checklist, stock
+gate, extended gate, temporal integrity); save one frozen results table with
+ground-truth labels and every approach's verdict (PASS / NEEDS_REVIEW / BLOCKED kept
+separate throughout, never collapsed inside this script).
 
 The group-identifier policy for the extended check is declared once, per dataset,
 before any case is built, and applied identically to every case: DataCo checks
@@ -33,8 +33,8 @@ from src.release_cases import (_reference, case_clean, case_leaky_feature,
                                 case_scenario)
 from src.release_review import (MODEL_FAMILIES, fit_predict, auroc_only_rule,
                                  metrics_only_rule, automated_checklist_rule,
-                                 group_overlap_check, combine_verdicts,
-                                 KNOWN_BASELINE_ISSUE)
+                                 group_overlap_check, temporal_integrity_rule,
+                                 combine_verdicts, KNOWN_BASELINE_ISSUE)
 
 OUT_DIR = RESULTS_DIR / "release_review"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -142,16 +142,24 @@ def run_one_case(dataset, case_name, defect_type, has_defect, case, ref, family,
     policy = GROUP_POLICY[dataset]
     group_train = meta[policy["identifier"]].values[train_idx]
     group_test = meta[policy["identifier"]].values[test_idx]
+    test_period_start = meta["decision_time"].values[test_idx].min()
+    time_train = meta["decision_time"].values[train_idx]
     t0 = time.time()
     if policy["time_aware"]:
-        test_period_start = meta["decision_time"].values[test_idx].min()
-        time_train = meta["decision_time"].values[train_idx]
         goc = group_overlap_check(group_train, group_test, time_train=time_train,
                                    test_period_start=test_period_start)
     else:
         goc = group_overlap_check(group_train, group_test)
     v_extended = combine_verdicts(v_stock, goc["status"])
     t_extended = time.time() - t0 + t_stock
+
+    # 6. Temporal integrity: a minimal, identifier-free comparator (no group id
+    # needed), included to establish what detection a basic chronological check
+    # alone already buys, before crediting the group-identifier extension with it.
+    t0 = time.time()
+    tic = temporal_integrity_rule(time_train, test_period_start)
+    v_temporal = tic["status"]
+    t_temporal = time.time() - t0
 
     return {
         "dataset": dataset, "case": case_name, "defect_type": defect_type,
@@ -164,6 +172,8 @@ def run_one_case(dataset, case_name, defect_type, has_defect, case, ref, family,
         "verdict_checklist": v_checklist, "time_checklist_s": t_checklist,
         "verdict_stock_gate": v_stock, "time_stock_gate_s": t_stock,
         "verdict_extended_gate": v_extended, "time_extended_gate_s": t_extended,
+        "verdict_temporal_integrity": v_temporal, "time_temporal_integrity_s": t_temporal,
+        "temporal_integrity_n_violations": tic["n_violations"],
         "group_overlap_identifier": policy["identifier"],
         "group_overlap_fraction": goc["overlap_fraction"],
         "group_overlap_check_status": goc["status"],
@@ -185,7 +195,8 @@ if __name__ == "__main__":
                       f"metrics_only={row['verdict_metrics_only']:13s} "
                       f"checklist={row['verdict_checklist']:13s} "
                       f"stock={row['verdict_stock_gate']:13s} "
-                      f"extended={row['verdict_extended_gate']:13s}")
+                      f"extended={row['verdict_extended_gate']:13s} "
+                      f"temporal={row['verdict_temporal_integrity']:13s}")
         print(f"[{dataset}] battery done in {time.time()-t0:.1f}s")
 
     df = pd.DataFrame(all_rows)
