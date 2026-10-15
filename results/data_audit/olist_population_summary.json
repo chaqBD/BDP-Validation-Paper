@@ -1,0 +1,30 @@
+{
+  "n_rows": 96180,
+  "n_orders": 96180,
+  "n_customers": 93078,
+  "late_rate": 0.08132667914327303,
+  "date_min": "2017-01-05 11:56:06",
+  "date_max": "2018-08-29 15:00:37",
+  "n_features": 17,
+  "numeric_features": [
+    "promised_days",
+    "n_items",
+    "n_sellers",
+    "n_categories",
+    "total_price",
+    "total_freight",
+    "avg_item_price",
+    "total_payment_value",
+    "payment_installments",
+    "avg_product_weight_g",
+    "avg_product_volume_cm3",
+    "purchase_month",
+    "purchase_dow",
+    "n_prior_orders"
+  ],
+  "categorical_features": [
+    "customer_state",
+    "payment_type_mode",
+    "main_category"
+  ]
+}

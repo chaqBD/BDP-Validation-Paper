@@ -1,0 +1,11 @@
+{
+  "n_orders_total": 99441,
+  "n_delivered": 96478,
+  "late_rate_delivered": 0.08111693857667032,
+  "purchase_min": "2016-09-04 21:15:19",
+  "purchase_max": "2018-10-17 17:30:18",
+  "n_avg_items_per_order": 1.1328325338643015,
+  "last_delivered_date": "2018-10-17 13:22:46",
+  "monthly_late_rate_min": 0.013608788325955074,
+  "monthly_late_rate_max": 0.21362273311437954
+}

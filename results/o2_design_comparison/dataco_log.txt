@@ -1,0 +1,62 @@
+Loading DataCo...
+Population: (164401, 23), late rate 0.573, n_orders=54796
+[dataco] design=row_random done in 83.7s (train_rows=110800, train_orders=43804)
+[dataco] design=order_grouped done in 77.8s (train_rows=131514, train_orders=43804)
+[dataco] design=customer_grouped done in 78.2s (train_rows=131268, train_orders=43804)
+[dataco] design=chronological_primary done in 70.3s (train_rows=131518, train_orders=43804)
+[dataco] design=chronological_new_customers done in 38.1s (train_rows=131518, train_orders=43804)
+Done in 350.4s. Saved to C:\Users\pingc\OneDrive\Documents\BDP-Validation-Paper\results\o2_design_comparison
+                         design                    model       auc  auc_ci_low  auc_ci_high     brier  cal_slope
+0                    row_random                   logreg  0.762658    0.756473     0.768590  0.186183   1.014871
+1                    row_random                       rf  0.755715    0.749445     0.761790  0.207010   2.668343
+2                    row_random                      gbm  0.776515    0.769892     0.782291  0.183370   1.106793
+3                    row_random   baseline_shipping_mode  0.741827    0.736075     0.747220  0.187828   1.006976
+4                    row_random  baseline_scheduled_days  0.708323    0.701356     0.714220  0.203917   0.977123
+5                 order_grouped                   logreg  0.741795    0.731832     0.750684  0.188939   0.961760
+6                 order_grouped                       rf  0.740872    0.731052     0.750126  0.188809   1.059737
+7                 order_grouped                      gbm  0.744413    0.733806     0.754020  0.188482   0.964218
+8                 order_grouped   baseline_shipping_mode  0.741517    0.733127     0.748894  0.186731   1.058016
+9                 order_grouped  baseline_scheduled_days  0.706500    0.697119     0.716069  0.203003   0.970504
+10             customer_grouped                   logreg  0.741954    0.733163     0.752437  0.189890   0.913575
+11             customer_grouped                       rf  0.741573    0.732207     0.752071  0.189702   1.035430
+12             customer_grouped                      gbm  0.742146    0.732322     0.752442  0.188777   0.947055
+13             customer_grouped   baseline_shipping_mode  0.743271    0.735526     0.752558  0.187528   0.993387
+14             customer_grouped  baseline_scheduled_days  0.708444    0.698717     0.717727  0.204323   0.961763
+15        chronological_primary                   logreg  0.746673    0.735278     0.756104  0.190171   0.929816
+16        chronological_primary                       rf  0.743656    0.734095     0.753443  0.208031   2.893253
+17        chronological_primary                      gbm  0.744972    0.735739     0.755052  0.189632   0.949257
+18        chronological_primary   baseline_shipping_mode  0.742096    0.733651     0.750277  0.189141   0.980843
+19        chronological_primary  baseline_scheduled_days  0.715411    0.706405     0.724754  0.201452   1.058491
+20  chronological_new_customers                   logreg  0.700512    0.640339     0.763347  0.207152   0.746170
+21  chronological_new_customers                       rf  0.671098    0.611973     0.741823  0.219688   2.476565
+22  chronological_new_customers                      gbm  0.718623    0.664670     0.782471  0.203421   0.821566
+23  chronological_new_customers   baseline_shipping_mode  0.713136    0.657847     0.765717  0.202176   0.865261
+24  chronological_new_customers  baseline_scheduled_days  0.691885    0.628469     0.749350  0.213364   0.944524
+
+Gate summary:
+    dataset                       design                    model   gate_status
+0   dataco                   row_random                   logreg  NEEDS_REVIEW
+1   dataco                   row_random                       rf  NEEDS_REVIEW
+2   dataco                   row_random                      gbm  NEEDS_REVIEW
+3   dataco                   row_random   baseline_shipping_mode       BLOCKED
+4   dataco                   row_random  baseline_scheduled_days       BLOCKED
+5   dataco                order_grouped                   logreg  NEEDS_REVIEW
+6   dataco                order_grouped                       rf  NEEDS_REVIEW
+7   dataco                order_grouped                      gbm  NEEDS_REVIEW
+8   dataco                order_grouped   baseline_shipping_mode       BLOCKED
+9   dataco                order_grouped  baseline_scheduled_days       BLOCKED
+10  dataco             customer_grouped                   logreg  NEEDS_REVIEW
+11  dataco             customer_grouped                       rf  NEEDS_REVIEW
+12  dataco             customer_grouped                      gbm  NEEDS_REVIEW
+13  dataco             customer_grouped   baseline_shipping_mode       BLOCKED
+14  dataco             customer_grouped  baseline_scheduled_days       BLOCKED
+15  dataco        chronological_primary                   logreg  NEEDS_REVIEW
+16  dataco        chronological_primary                       rf       BLOCKED
+17  dataco        chronological_primary                      gbm  NEEDS_REVIEW
+18  dataco        chronological_primary   baseline_shipping_mode       BLOCKED
+19  dataco        chronological_primary  baseline_scheduled_days       BLOCKED
+20  dataco  chronological_new_customers                   logreg  NEEDS_REVIEW
+21  dataco  chronological_new_customers                       rf  NEEDS_REVIEW
+22  dataco  chronological_new_customers                      gbm  NEEDS_REVIEW
+23  dataco  chronological_new_customers   baseline_shipping_mode       BLOCKED
+24  dataco  chronological_new_customers  baseline_scheduled_days       BLOCKED

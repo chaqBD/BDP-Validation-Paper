@@ -1,0 +1,35 @@
+Done in 330.8s, 128 rows
+
+Mean recovery error (random-vs-grouped contrast) by W (within-order correlation):
+       mean       std
+W                    
+0 -0.007164  0.014347
+1  0.078923  0.019058
+
+Mean recovery error (grouped-vs-chronological contrast) by S,R,P (temporal factors):
+           mean       std
+S R P                    
+0 0 0 -0.003287  0.030116
+    1 -0.020842  0.031584
+  1 0 -0.017818  0.033585
+    1 -0.013061  0.031633
+1 0 0 -0.007310  0.033786
+    1 -0.024348  0.032020
+  1 0 -0.028740  0.036195
+    1 -0.027365  0.027816
+
+Estimated contrast magnitude by condition (sanity check of direction):
+W
+0   -0.002620
+1    0.118408
+Name: est_contrast_random_vs_grouped, dtype: float64
+S  R  P
+0  0  0    0.033929
+      1    0.059205
+   1  0    0.025091
+      1    0.075350
+1  0  0    0.039072
+      1    0.068395
+   1  0    0.031328
+      1    0.083432
+Name: est_contrast_grouped_vs_chronological, dtype: float64

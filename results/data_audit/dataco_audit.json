@@ -1,0 +1,14 @@
+{
+  "n_rows": 180519,
+  "n_cancelled": 7754,
+  "pct_cancelled": 4.295392728743234,
+  "pct_non_cancelled": 95.70460727125678,
+  "n_orders": 65752,
+  "mean_items_per_order": 2.745452609806546,
+  "n_customers": 20652,
+  "date_min": "2015-01-01 00:00:00",
+  "date_max": "2018-01-31 23:38:00",
+  "late_rate_overall": 0.5482913155955883,
+  "first_class_late_rate": 1.0,
+  "pct_orders_single_label": 100.0
+}

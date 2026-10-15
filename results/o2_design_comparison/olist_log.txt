@@ -1,0 +1,62 @@
+Loading Olist...
+Population: (96180, 17), late rate 0.081, n_customers=93078
+[olist] design=row_random done in 124.8s (train_rows=76904, train_orders=76904)
+[olist] design=order_grouped done in 114.9s (train_rows=76904, train_orders=76904)
+[olist] design=customer_grouped done in 118.8s (train_rows=76904, train_orders=76904)
+[olist] design=chronological_primary done in 59.8s (train_rows=76904, train_orders=76904)
+[olist] design=chronological_new_customers done in 56.9s (train_rows=76904, train_orders=76904)
+Done in 485.7s. Saved to C:\Users\pingc\OneDrive\Documents\BDP-Validation-Paper\results\o2_design_comparison
+                         design                     model       auc  auc_ci_low  auc_ci_high     brier  cal_slope
+0                    row_random                    logreg  0.683192    0.668871     0.696896  0.071567   0.959016
+1                    row_random                        rf  0.761019    0.747764     0.773463  0.067667   1.356469
+2                    row_random                       gbm  0.778153    0.766514     0.789257  0.066522   1.066652
+3                    row_random    baseline_promised_days  0.550196    0.535088     0.563872  0.073874   1.053343
+4                    row_random  baseline_customer_region  0.610368    0.596567     0.624265  0.073137   0.916637
+5                 order_grouped                    logreg  0.684701    0.671123     0.697362  0.070205   0.990656
+6                 order_grouped                        rf  0.763709    0.750259     0.775349  0.066209   1.379931
+7                 order_grouped                       gbm  0.779541    0.767137     0.790846  0.065036   1.037887
+8                 order_grouped    baseline_promised_days  0.554780    0.538422     0.569270  0.072751   1.126329
+9                 order_grouped  baseline_customer_region  0.607209    0.592981     0.621585  0.071991   0.927000
+10             customer_grouped                    logreg  0.682592    0.668512     0.695372  0.073066   0.947696
+11             customer_grouped                        rf  0.763875    0.750329     0.776070  0.068877   1.368450
+12             customer_grouped                       gbm  0.781744    0.769539     0.792827  0.067631   1.072934
+13             customer_grouped    baseline_promised_days  0.546640    0.533239     0.559822  0.075545   1.009765
+14             customer_grouped  baseline_customer_region  0.607349    0.591950     0.621171  0.074667   0.920931
+15        chronological_primary                    logreg  0.710478    0.696876     0.724360  0.052538   0.936891
+16        chronological_primary                        rf  0.461963    0.443492     0.480279  0.051473  -0.322177
+17        chronological_primary                       gbm  0.720333    0.705440     0.733242  0.049040   1.039203
+18        chronological_primary    baseline_promised_days  0.797437    0.781894     0.811044  0.050706  11.886812
+19        chronological_primary  baseline_customer_region  0.422941    0.406095     0.439308  0.053536  -0.345212
+20  chronological_new_customers                    logreg  0.708974    0.695563     0.723388  0.053041   0.933113
+21  chronological_new_customers                        rf  0.460377    0.441782     0.479644  0.052020  -0.338025
+22  chronological_new_customers                       gbm  0.718781    0.704066     0.730765  0.049598   1.032469
+23  chronological_new_customers    baseline_promised_days  0.798362    0.783390     0.811328  0.051209  11.942697
+24  chronological_new_customers  baseline_customer_region  0.422049    0.405850     0.438429  0.054085  -0.351116
+
+Gate summary:
+    dataset                       design                     model   gate_status
+0    olist                   row_random                    logreg          PASS
+1    olist                   row_random                        rf          PASS
+2    olist                   row_random                       gbm          PASS
+3    olist                   row_random    baseline_promised_days       BLOCKED
+4    olist                   row_random  baseline_customer_region       BLOCKED
+5    olist                order_grouped                    logreg          PASS
+6    olist                order_grouped                        rf          PASS
+7    olist                order_grouped                       gbm          PASS
+8    olist                order_grouped    baseline_promised_days       BLOCKED
+9    olist                order_grouped  baseline_customer_region       BLOCKED
+10   olist             customer_grouped                    logreg          PASS
+11   olist             customer_grouped                        rf          PASS
+12   olist             customer_grouped                       gbm          PASS
+13   olist             customer_grouped    baseline_promised_days       BLOCKED
+14   olist             customer_grouped  baseline_customer_region       BLOCKED
+15   olist        chronological_primary                    logreg  NEEDS_REVIEW
+16   olist        chronological_primary                        rf       BLOCKED
+17   olist        chronological_primary                       gbm  NEEDS_REVIEW
+18   olist        chronological_primary    baseline_promised_days       BLOCKED
+19   olist        chronological_primary  baseline_customer_region       BLOCKED
+20   olist  chronological_new_customers                    logreg  NEEDS_REVIEW
+21   olist  chronological_new_customers                        rf       BLOCKED
+22   olist  chronological_new_customers                       gbm  NEEDS_REVIEW
+23   olist  chronological_new_customers    baseline_promised_days       BLOCKED
+24   olist  chronological_new_customers  baseline_customer_region       BLOCKED

@@ -1,0 +1,36 @@
+{
+  "n_rows": 164401,
+  "n_orders": 54796,
+  "n_customers": 12296,
+  "late_rate": 0.5727763213119141,
+  "date_min": "2015-01-01 00:00:00",
+  "date_max": "2017-09-29 23:49:00",
+  "n_features": 23,
+  "numeric_features": [
+    "Days for shipment (scheduled)",
+    "Order Item Discount",
+    "Order Item Discount Rate",
+    "Order Item Product Price",
+    "Order Item Quantity",
+    "Sales",
+    "Order Item Total",
+    "Product Price",
+    "Latitude",
+    "Longitude",
+    "order_month",
+    "order_dow"
+  ],
+  "categorical_features": [
+    "Type",
+    "Category Name",
+    "Customer Segment",
+    "Customer State",
+    "Customer Country",
+    "Market",
+    "Order Region",
+    "Order State",
+    "Order Country",
+    "Shipping Mode",
+    "Department Name"
+  ]
+}

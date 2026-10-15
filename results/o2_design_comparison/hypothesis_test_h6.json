@@ -1,0 +1,72 @@
+{
+  "dataco": {
+    "tau": 0.33333333333333337,
+    "pvalue": 1.0,
+    "ci_low": -0.9999999999999999,
+    "ci_high": 0.9999999999999999,
+    "rank_change_frequency": 0.6666666666666666,
+    "hypothesis": "H6",
+    "dataset": "dataco",
+    "models": [
+      "logreg",
+      "rf",
+      "gbm"
+    ],
+    "row_random_aucs": [
+      0.762657996849146,
+      0.7557145817405451,
+      0.7765147453968974
+    ],
+    "row_random_ranks": [
+      2.0,
+      3.0,
+      1.0
+    ],
+    "primary_design": "chronological_primary",
+    "primary_aucs": [
+      0.7466729721705962,
+      0.7436561507955037,
+      0.7449723370071102
+    ],
+    "primary_ranks": [
+      1.0,
+      3.0,
+      2.0
+    ]
+  },
+  "olist": {
+    "tau": 0.33333333333333337,
+    "pvalue": 1.0,
+    "ci_low": -0.9999999999999999,
+    "ci_high": 0.9999999999999999,
+    "rank_change_frequency": 0.6666666666666666,
+    "hypothesis": "H6",
+    "dataset": "olist",
+    "models": [
+      "logreg",
+      "rf",
+      "gbm"
+    ],
+    "row_random_aucs": [
+      0.6747911264329391,
+      0.7593751169968039,
+      0.7764738004684031
+    ],
+    "row_random_ranks": [
+      3.0,
+      2.0,
+      1.0
+    ],
+    "primary_design": "chronological_primary",
+    "primary_aucs": [
+      0.7117013627650105,
+      0.4870640115298466,
+      0.7176439105037635
+    ],
+    "primary_ranks": [
+      2.0,
+      3.0,
+      1.0
+    ]
+  }
+}

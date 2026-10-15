@@ -1,0 +1,110 @@
+"""The five validation designs compared in O2 (Section 5.1), plus rolling-origin
+splits reused by O4 (Section 7.4).
+
+`meta` is the per-row DataFrame with columns order_id, customer_id, decision_time
+produced by dataco_prep.build_population / olist_prep.build_population. Index
+positions in meta line up with positions in X and y.
+"""
+import numpy as np
+from sklearn.model_selection import GroupShuffleSplit
+
+
+def split_row_random(meta, test_size=0.2, seed=0):
+    rng = np.random.default_rng(seed)
+    n = len(meta)
+    idx = rng.permutation(n)
+    n_test = int(n * test_size)
+    return idx[n_test:], idx[:n_test]
+
+
+def split_group_random(meta, group_col, test_size=0.2, seed=0):
+    gss = GroupShuffleSplit(n_splits=1, test_size=test_size, random_state=seed)
+    train_idx, test_idx = next(gss.split(meta, groups=meta[group_col]))
+    return train_idx, test_idx
+
+
+def split_chronological(meta, test_size=0.2):
+    order = np.argsort(meta["decision_time"].values)
+    n = len(meta)
+    n_test = int(n * test_size)
+    test_pos = order[n - n_test:]
+    train_pos = order[: n - n_test]
+    cutoff = meta["decision_time"].values[test_pos].min()
+    return train_pos, test_pos, cutoff
+
+
+def split_chronological_new_customers(meta, test_size=0.2):
+    train_idx, test_idx, cutoff = split_chronological(meta, test_size=test_size)
+    train_customers = set(meta["customer_id"].values[train_idx])
+    test_customer_ids = meta["customer_id"].values[test_idx]
+    is_new = np.array([c not in train_customers for c in test_customer_ids])
+    return train_idx, test_idx[is_new], test_idx[~is_new], cutoff
+
+
+def match_training_size(train_idx_dict, meta, group_col="order_id", seed=0):
+    """Subsample each design's training set down to the smallest common number of
+    unique orders across designs, so comparisons are not confounded by training
+    size (Section 7.1 'Equal footing').
+    """
+    rng = np.random.default_rng(seed)
+    n_orders = {k: meta[group_col].values[idx].astype(str)
+                for k, idx in train_idx_dict.items()}
+    min_orders = min(len(np.unique(v)) for v in n_orders.values())
+
+    matched = {}
+    for k, idx in train_idx_dict.items():
+        groups = meta[group_col].values[idx].astype(str)
+        unique_groups = np.unique(groups)
+        if len(unique_groups) <= min_orders:
+            matched[k] = idx
+            continue
+        keep_groups = set(rng.choice(unique_groups, size=min_orders, replace=False))
+        keep_mask = np.isin(groups, list(keep_groups))
+        matched[k] = idx[keep_mask]
+    return matched, min_orders
+
+
+def rolling_origin_splits(meta, n_origins=6, min_train_frac=0.5, test_frac_per_origin=0.08):
+    """Expanding-window rolling-origin splits (Section 7.4).
+
+    Returns a list of dicts with train_idx, test_idx, origin_time (start of the
+    test window) and horizon_end (end of the test window).
+    """
+    order = np.argsort(meta["decision_time"].values)
+    times_sorted = meta["decision_time"].values[order]
+    n = len(order)
+
+    min_train_n = int(n * min_train_frac)
+    test_n = max(int(n * test_frac_per_origin), 1)
+    remaining = n - min_train_n
+    step = max(remaining // n_origins, 1)
+
+    splits = []
+    start = min_train_n
+    for i in range(n_origins):
+        train_end = start + i * step
+        test_start = train_end
+        test_end = min(test_start + test_n, n)
+        if test_start >= n or test_end - test_start < 20:
+            break
+        train_pos = order[:train_end]
+        test_pos = order[test_start:test_end]
+        splits.append({
+            "origin_index": i,
+            "train_idx": train_pos,
+            "test_idx": test_pos,
+            "origin_time": times_sorted[test_start],
+            "horizon_end": times_sorted[test_end - 1],
+            "train_end_time": times_sorted[train_end - 1],
+        })
+    return splits
+
+
+def weekly_block_ids(decision_time):
+    """ISO week identifiers used as cluster ids for block bootstrap on
+    chronological comparisons (Section 7.5).
+    """
+    import pandas as pd
+    ts = pd.to_datetime(decision_time)
+    iso = ts.isocalendar()
+    return (iso["year"].astype(str) + "-W" + iso["week"].astype(str).str.zfill(2)).values

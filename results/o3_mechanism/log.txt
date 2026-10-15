@@ -1,0 +1,19 @@
+DataCo period 2017-03-01..2017-04-01: 9 rows in 6.0s
+DataCo period 2017-05-01..2017-06-01: 9 rows in 21.2s
+DataCo period 2017-07-01..2017-08-01: 9 rows in 11.9s
+DataCo period 2017-09-01..2017-09-30: 9 rows in 18.2s
+Olist period 2017-11-01..2017-12-01: 3 rows in 98.6s
+Olist period 2018-02-01..2018-03-01: 3 rows in 109.4s
+Olist period 2018-05-01..2018-06-01: 3 rows in 64.1s
+Total time 355.2s
+condition
+A_past_only           0.741151
+B_time_coverage       0.738841
+C_order_dependence    0.858529
+D_customer_history    0.729049
+Name: auc, dtype: float64
+condition
+A_past_only           0.597906
+B_time_coverage       0.635798
+D_customer_history    0.621283
+Name: auc, dtype: float64

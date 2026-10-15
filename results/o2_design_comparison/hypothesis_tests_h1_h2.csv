@@ -1,0 +1,7 @@
+hypothesis,dataset,model,contrast,diff,ci_low,ci_high,delta,verdict,holm_adjusted_p_proxy
+H1,dataco,logreg,row_random_minus_order_grouped_auc,0.02086296716136249,0.009041401832147957,0.032309527465446373,0.01,inconclusive,1.0
+H1,dataco,rf,row_random_minus_order_grouped_auc,0.014842397314354439,0.0030438491982197093,0.026698529128147238,0.01,inconclusive,1.0
+H1,dataco,gbm,row_random_minus_order_grouped_auc,0.0321020961829116,0.020309765293538878,0.04341696210403584,0.01,superior,0.006
+H2,olist,logreg,chronological_minus_order_grouped_auc,0.028721644975839622,0.010358362345445592,0.04799680658858125,0.01,superior,0.006
+H2,olist,rf,chronological_minus_order_grouped_auc,-0.27693527149393626,-0.2997726888848678,-0.25354349511015045,0.01,inferior,0.006
+H2,olist,gbm,chronological_minus_order_grouped_auc,-0.06513447550024176,-0.08343509242988376,-0.045373083246977544,0.01,inferior,0.006

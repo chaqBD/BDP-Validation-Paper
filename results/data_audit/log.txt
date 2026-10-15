@@ -1,0 +1,93 @@
+DataCo audit: {
+  "n_rows": 180519,
+  "n_cancelled": 7754,
+  "pct_cancelled": 4.295392728743234,
+  "pct_non_cancelled": 95.70460727125678,
+  "n_orders": 65752,
+  "mean_items_per_order": 2.745452609806546,
+  "n_customers": 20652,
+  "date_min": "2015-01-01 00:00:00",
+  "date_max": "2018-01-31 23:38:00",
+  "late_rate_overall": 0.5482913155955883,
+  "first_class_late_rate": 1.0,
+  "pct_orders_single_label": 100.0
+}
+DataCo population: {
+  "n_rows": 164401,
+  "n_orders": 54796,
+  "n_customers": 12296,
+  "late_rate": 0.5727763213119141,
+  "date_min": "2015-01-01 00:00:00",
+  "date_max": "2017-09-29 23:49:00",
+  "n_features": 23,
+  "numeric_features": [
+    "Days for shipment (scheduled)",
+    "Order Item Discount",
+    "Order Item Discount Rate",
+    "Order Item Product Price",
+    "Order Item Quantity",
+    "Sales",
+    "Order Item Total",
+    "Product Price",
+    "Latitude",
+    "Longitude",
+    "order_month",
+    "order_dow"
+  ],
+  "categorical_features": [
+    "Type",
+    "Category Name",
+    "Customer Segment",
+    "Customer State",
+    "Customer Country",
+    "Market",
+    "Order Region",
+    "Order State",
+    "Order Country",
+    "Shipping Mode",
+    "Department Name"
+  ]
+}
+
+Olist audit: {
+  "n_orders_total": 99441,
+  "n_delivered": 96478,
+  "late_rate_delivered": 0.08111693857667032,
+  "purchase_min": "2016-09-04 21:15:19",
+  "purchase_max": "2018-10-17 17:30:18",
+  "n_avg_items_per_order": 1.1328325338643015,
+  "last_delivered_date": "2018-10-17 13:22:46",
+  "monthly_late_rate_min": 0.013608788325955074,
+  "monthly_late_rate_max": 0.21362273311437954
+}
+
+Olist population: {
+  "n_rows": 96180,
+  "n_orders": 96180,
+  "n_customers": 93078,
+  "late_rate": 0.08132667914327303,
+  "date_min": "2017-01-05 11:56:06",
+  "date_max": "2018-08-29 15:00:37",
+  "n_features": 17,
+  "numeric_features": [
+    "promised_days",
+    "n_items",
+    "n_sellers",
+    "n_categories",
+    "total_price",
+    "total_freight",
+    "avg_item_price",
+    "total_payment_value",
+    "payment_installments",
+    "avg_product_weight_g",
+    "avg_product_volume_cm3",
+    "purchase_month",
+    "purchase_dow",
+    "n_prior_orders"
+  ],
+  "categorical_features": [
+    "customer_state",
+    "payment_type_mode",
+    "main_category"
+  ]
+}

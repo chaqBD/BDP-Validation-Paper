@@ -1,0 +1,13 @@
+DataCo-Dataset/
+Olist-Dataset/
+Olist-Dataset.zip
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+results/cache/
+*.tmp
+
+# Third-party package artifacts (not our source; pin via requirements.txt instead)
+bdp_model_gate-*.whl
+bdp_model_gate-*.tar.gz
+bdp-model-gate-DESCRIPTION.pdf
